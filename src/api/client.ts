@@ -67,6 +67,29 @@ export async function deleteArtist(artistId: string): Promise<{ code: number; me
   });
 }
 
+/**
+ * 通过B站UID注册UP主
+ * @param uid B站UID
+ * @param bvid 用于验证的BV号（该UP主的任意视频）
+ */
+export async function registerArtistByUid(
+  uid: string,
+  bvid: string
+): Promise<{
+  code: number;
+  message: string;
+  data: {
+    artist: ArtistSimple | null;
+    videosFound: number;
+    videosProcessed: number;
+  }
+}> {
+  return fetchApi('/artists/register', {
+    method: 'POST',
+    body: JSON.stringify({ uid, bvid }),
+  });
+}
+
 // ========== 视频相关 API ==========
 
 /**

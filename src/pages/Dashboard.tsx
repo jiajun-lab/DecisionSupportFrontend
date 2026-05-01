@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2 } from 'lucide-react';
+import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus } from 'lucide-react';
 import { useArtists } from '../hooks';
+import RegisterArtistModal from '../components/RegisterArtistModal';
 
 function fmt(n: number): string {
   if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿';
@@ -10,7 +12,8 @@ function fmt(n: number): string {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { artists, loading, error } = useArtists();
+  const { artists, loading, error, refresh } = useArtists();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 计算统计数据
   const totalFans = artists.reduce((s, a) => s + (a.fans || 0), 0);
@@ -53,13 +56,22 @@ export default function Dashboard() {
   return (
     <div className="p-8 animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot" />
-          <span className="text-[11px] text-emerald-400 font-medium uppercase tracking-widest">系统正常运行</span>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot" />
+            <span className="text-[11px] text-emerald-400 font-medium uppercase tracking-widest">系统正常运行</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-100">MCN 内容决策中心</h1>
+          <p className="text-sm text-slate-500 mt-1">管理旗下艺人的视频舆情、爆点与 AI 分析报告</p>
         </div>
-        <h1 className="text-2xl font-bold text-slate-100">MCN 内容决策中心</h1>
-        <p className="text-sm text-slate-500 mt-1">管理旗下艺人的视频舆情、爆点与 AI 分析报告</p>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+        >
+          <Plus size={18} />
+          <span className="font-medium">注册新艺人</span>
+        </button>
       </div>
 
       {/* Global Stats */}
@@ -166,6 +178,15 @@ export default function Dashboard() {
           })}
         </div>
       </div>
+
+      {/* 注册艺人弹窗 */}
+      <RegisterArtistModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          refresh(); // 刷新艺人列表
+        }}
+      />
     </div>
   );
 }
