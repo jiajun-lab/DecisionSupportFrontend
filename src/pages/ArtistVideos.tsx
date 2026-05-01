@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Heart, Star, TrendingUp, Filter } from 'lucide-react';
+import { ArrowLeft, Eye, Heart, Star, TrendingUp, Filter, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { getArtistById } from '../mockData';
+import { useArtist } from '../hooks';
 import VideoCard from '../components/VideoCard';
 
 function fmt(n: number): string {
@@ -18,12 +18,27 @@ export default function ArtistVideos() {
   const [riskFilter, setRiskFilter] = useState<Filter>('all');
   const [sortBy, setSortBy] = useState<'views' | 'sentiment' | 'date'>('date');
 
-  const artist = id ? getArtistById(id) : undefined;
+  const { artist, loading, error } = useArtist(id);
 
-  if (!artist) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-slate-500">
-        艺人不存在
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <span className="ml-3 text-slate-400">加载中...</span>
+      </div>
+    );
+  }
+
+  if (error || !artist) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="text-red-400 mb-4">{error?.message || '艺人不存在'}</div>
+        <button
+          onClick={() => navigate('/')}
+          className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+        >
+          返回首页
+        </button>
       </div>
     );
   }
@@ -61,7 +76,8 @@ export default function ArtistVideos() {
       {/* Artist Profile Header */}
       <div className="card p-6 mb-8">
         <div className="flex items-center gap-6">
-          <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${artist.avatarColor} flex items-center justify-center shadow-xl flex-shrink-0`}>
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-xl flex-shrink-0"
+               style={{ background: `linear-gradient(135deg, ${artist.avatarColor[0]}, ${artist.avatarColor[1]})` }}>
             <span className="text-3xl font-bold text-white">{artist.initials}</span>
           </div>
           <div className="flex-1">

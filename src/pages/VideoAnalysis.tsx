@@ -104,7 +104,7 @@ export default function VideoAnalysis() {
           className="text-slate-600 hover:text-slate-400 transition-colors">总览</button>
         <span className="text-slate-700">/</span>
         <button onClick={() => navigate(`/artist/${video.artistId}`)}
-          className="text-slate-600 hover:text-slate-400 transition-colors">{artist?.name}</button>
+          className="text-slate-600 hover:text-slate-400 transition-colors">{video.artistName || '未知艺人'}</button>
         <span className="text-slate-700">/</span>
         <span className="text-slate-400">视频分析</span>
       </div>

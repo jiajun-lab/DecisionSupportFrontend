@@ -18,6 +18,8 @@ type Step = 'input' | 'submitting' | 'success' | 'error';
 export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: RegisterArtistModalProps) {
   const [uid, setUid] = useState('');
   const [bvid, setBvid] = useState('');
+  const [cookie, setCookie] = useState('');
+  const [showCookie, setShowCookie] = useState(false);
   const [step, setStep] = useState<Step>('input');
   const [result, setResult] = useState<{
     artistName: string;
@@ -36,7 +38,7 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
     setErrorMessage('');
 
     try {
-      const response = await registerArtistByUid(uid.trim(), bvid.trim());
+      const response = await registerArtistByUid(uid.trim(), bvid.trim(), cookie.trim() || undefined);
 
       if (response.code === 200 && response.data.artist) {
         setResult({
@@ -60,6 +62,8 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
     // 重置状态
     setUid('');
     setBvid('');
+    setCookie('');
+    setShowCookie(false);
     setStep('input');
     setResult(null);
     setErrorMessage('');
@@ -129,6 +133,36 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
                 <p className="mt-1.5 text-xs text-slate-500">
                   该UP主任意一个视频的BV号，用于验证身份
                 </p>
+              </div>
+
+              {/* Cookie 输入（可选） */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-slate-300">
+                    B站 Cookie（可选）
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowCookie(!showCookie)}
+                    className="text-xs text-blue-400 hover:text-blue-300"
+                  >
+                    {showCookie ? '收起' : '展开'}
+                  </button>
+                </div>
+                {showCookie && (
+                  <>
+                    <textarea
+                      value={cookie}
+                      onChange={(e) => setCookie(e.target.value)}
+                      placeholder="粘贴B站Cookie，用于获取真实粉丝数和更多视频..."
+                      rows={3}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all text-xs font-mono"
+                    />
+                    <p className="mt-1.5 text-xs text-slate-500">
+                      在B站网页版登录后，打开开发者工具-Application-Cookies，复制bilibili.com下的所有Cookie
+                    </p>
+                  </>
+                )}
               </div>
 
               {errorMessage && (

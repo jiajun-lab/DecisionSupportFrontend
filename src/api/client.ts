@@ -5,7 +5,7 @@
 
 import type { Artist, ArtistSimple, Video, VideoAnalysis } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://localhost:8001/api/v1';
 
 /**
  * 基础请求函数
@@ -71,10 +71,12 @@ export async function deleteArtist(artistId: string): Promise<{ code: number; me
  * 通过B站UID注册UP主
  * @param uid B站UID
  * @param bvid 用于验证的BV号（该UP主的任意视频）
+ * @param cookie B站Cookie（可选，用于获取真实粉丝数）
  */
 export async function registerArtistByUid(
   uid: string,
-  bvid: string
+  bvid: string,
+  cookie?: string
 ): Promise<{
   code: number;
   message: string;
@@ -86,7 +88,7 @@ export async function registerArtistByUid(
 }> {
   return fetchApi('/artists/register', {
     method: 'POST',
-    body: JSON.stringify({ uid, bvid }),
+    body: JSON.stringify({ uid, bvid, cookie }),
   });
 }
 

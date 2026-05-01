@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus } from 'lucide-react';
+import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus, Trash2, X, AlertTriangle } from 'lucide-react';
 import { useArtists } from '../hooks';
+import { deleteArtist } from '../api/client';
 import RegisterArtistModal from '../components/RegisterArtistModal';
 
 function fmt(n: number): string {
@@ -14,6 +15,10 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { artists, loading, error, refresh } = useArtists();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 删除相关状态
+  const [artistToDelete, setArtistToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // 计算统计数据
   const totalFans = artists.reduce((s, a) => s + (a.fans || 0), 0);
@@ -52,6 +57,22 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  // 处理删除
+  const handleDelete = async () => {
+    if (!artistToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteArtist(artistToDelete.id);
+      refresh(); // 刷新列表
+      setArtistToDelete(null);
+    } catch (err: any) {
+      alert('删除失败: ' + (err.message || '未知错误'));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="p-8 animate-fade-in">
@@ -132,7 +153,7 @@ export default function Dashboard() {
 
             return (
               <div key={artist.id}
-                className="card p-6 cursor-pointer group"
+                className="card p-6 cursor-pointer group relative"
                 onClick={() => navigate(`/artist/${artist.id}`)}>
 
                 {/* Artist Header */}
@@ -141,7 +162,7 @@ export default function Dashboard() {
                     style={{ background: `linear-gradient(135deg, ${artist.avatarColor[0]}, ${artist.avatarColor[1]})` }}>
                     <span className="text-xl font-bold text-white">{artist.initials}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 pr-8">
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-semibold text-slate-100 group-hover:text-white transition-colors">
                         {artist.name}
@@ -158,7 +179,7 @@ export default function Dashboard() {
                   {[
                     { label: '粉丝', value: fmt(artist.fans || 0) },
                     { label: '视频', value: (artist.totalVideos || 0).toString() },
-                    { label: '播放', value: fmt(artist.totalViews || 0) },
+                    { label: '获赞', value: fmt(artist.totalViews || 0) },
                   ].map(s => (
                     <div key={s.label} className="text-center p-2.5 rounded-lg bg-white/[0.025]">
                       <p className="text-sm font-bold font-mono text-slate-200">{s.value}</p>
@@ -167,11 +188,22 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                {/* Category badge */}
-                <div className="mt-4 pt-4 border-t border-white/[0.05]">
+                {/* Category badge & Delete */}
+                <div className="mt-4 pt-4 border-t border-white/[0.05] flex items-center justify-between">
                   <span className="text-[11px] text-slate-500 px-2 py-1 rounded bg-white/[0.03]">
                     {artist.category}
                   </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setArtistToDelete({ id: artist.id, name: artist.name });
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 rounded text-[11px] text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                    title="删除艺人"
+                  >
+                    <Trash2 size={12} />
+                    删除
+                  </button>
                 </div>
               </div>
             );
@@ -187,6 +219,51 @@ export default function Dashboard() {
           refresh(); // 刷新艺人列表
         }}
       />
+
+      {/* 删除确认弹窗 */}
+      {artistToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm card p-6 animate-fade-in">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={24} className="text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-1">确认删除</h3>
+                <p className="text-sm text-slate-500">
+                  确定要删除艺人 <span className="text-slate-300 font-medium">{artistToDelete.name}</span> 吗？
+                </p>
+                <p className="text-xs text-slate-600 mt-2">
+                  此操作将同时删除该艺人下的所有视频、评论和分析数据，不可恢复。
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setArtistToDelete(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-slate-400 rounded-lg transition-colors disabled:opacity-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    删除中...
+                  </>
+                ) : (
+                  '确认删除'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
