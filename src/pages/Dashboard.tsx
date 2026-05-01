@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity } from 'lucide-react';
-import { artists } from '../mockData';
+import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2 } from 'lucide-react';
+import { useArtists } from '../hooks';
 
 function fmt(n: number): string {
   if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿';
@@ -10,11 +10,13 @@ function fmt(n: number): string {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { artists, loading, error } = useArtists();
 
-  const totalFans = artists.reduce((s, a) => s + a.fans, 0);
-  const totalVideos = artists.reduce((s, a) => s + a.totalVideos, 0);
-  const totalViews = artists.reduce((s, a) => s + a.totalViews, 0);
-  const activeAlerts = artists.flatMap(a => a.videos).filter(v => v.riskLevel === 'high').length;
+  // 计算统计数据
+  const totalFans = artists.reduce((s, a) => s + (a.fans || 0), 0);
+  const totalVideos = artists.reduce((s, a) => s + (a.totalVideos || 0), 0);
+  const totalViews = artists.reduce((s, a) => s + (a.totalViews || 0), 0);
+  const activeAlerts = 0; // TODO: 从后端获取风险预警数量
 
   const globalStats = [
     { label: '旗下艺人', value: artists.length.toString(), icon: Users, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
@@ -22,6 +24,31 @@ export default function Dashboard() {
     { label: '视频作品', value: totalVideos.toString(), icon: PlayCircle, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
     { label: '累计播放', value: fmt(totalViews), icon: Eye, color: '#22d3ee', bg: 'rgba(34,211,238,0.1)' },
   ];
+
+  // 加载状态
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <span className="ml-3 text-slate-400">加载中...</span>
+      </div>
+    );
+  }
+
+  // 错误状态
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="text-red-400 mb-4">加载失败: {error.message}</div>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+        >
+          重试
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 animate-fade-in">
@@ -84,9 +111,10 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-2 gap-5">
           {artists.map(artist => {
-            const highRisk = artist.videos.filter(v => v.riskLevel === 'high').length;
-            const avgScore = artist.videos.length > 0
-              ? Math.round(artist.videos.reduce((s, v) => s + v.sentimentScore, 0) / artist.videos.length)
+            const videos = artist.videos || [];
+            const highRisk = videos.filter(v => v.riskLevel === 'high').length;
+            const avgScore = videos.length > 0
+              ? Math.round(videos.reduce((s, v) => s + v.sentimentScore, 0) / videos.length)
               : 0;
             const scoreColor = avgScore >= 80 ? '#34d399' : avgScore >= 60 ? '#fbbf24' : '#f87171';
 
@@ -97,7 +125,8 @@ export default function Dashboard() {
 
                 {/* Artist Header */}
                 <div className="flex items-start gap-4 mb-5">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${artist.avatarColor} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                    style={{ background: `linear-gradient(135deg, ${artist.avatarColor[0]}, ${artist.avatarColor[1]})` }}>
                     <span className="text-xl font-bold text-white">{artist.initials}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -105,11 +134,6 @@ export default function Dashboard() {
                       <h3 className="text-base font-semibold text-slate-100 group-hover:text-white transition-colors">
                         {artist.name}
                       </h3>
-                      {highRisk > 0 && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-medium">
-                          {highRisk} 预警
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">{artist.category}</p>
                     <p className="text-xs text-slate-600 mt-0.5">{artist.latestActivity} 最近更新</p>
@@ -120,9 +144,9 @@ export default function Dashboard() {
                 {/* Stats row */}
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {[
-                    { label: '粉丝', value: fmt(artist.fans) },
-                    { label: '视频', value: artist.totalVideos.toString() },
-                    { label: '播放', value: fmt(artist.totalViews) },
+                    { label: '粉丝', value: fmt(artist.fans || 0) },
+                    { label: '视频', value: (artist.totalVideos || 0).toString() },
+                    { label: '播放', value: fmt(artist.totalViews || 0) },
                   ].map(s => (
                     <div key={s.label} className="text-center p-2.5 rounded-lg bg-white/[0.025]">
                       <p className="text-sm font-bold font-mono text-slate-200">{s.value}</p>
@@ -131,29 +155,11 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                {/* Sentiment score */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] text-slate-500">平均舆情健康度</span>
-                    <span className="text-[12px] font-mono font-bold" style={{ color: scoreColor }}>
-                      {avgScore} / 100
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${avgScore}%`, background: scoreColor }} />
-                  </div>
-                </div>
-
-                {/* Recent video titles */}
-                <div className="mt-4 pt-4 border-t border-white/[0.05] space-y-1.5">
-                  {artist.videos.slice(0, 2).map(v => (
-                    <div key={v.bvId} className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{ background: v.riskLevel === 'high' ? '#f87171' : v.riskLevel === 'medium' ? '#fbbf24' : '#34d399' }} />
-                      <p className="text-[11px] text-slate-500 truncate">{v.title}</p>
-                    </div>
-                  ))}
+                {/* Category badge */}
+                <div className="mt-4 pt-4 border-t border-white/[0.05]">
+                  <span className="text-[11px] text-slate-500 px-2 py-1 rounded bg-white/[0.03]">
+                    {artist.category}
+                  </span>
                 </div>
               </div>
             );

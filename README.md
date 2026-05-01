@@ -15,9 +15,26 @@
 
 ## 快速开始
 
+### 1. 环境要求
+
+- Node.js 18+
+- 后端服务运行在 `http://localhost:8000`（见 `../DecisionSupportSystem`）
+
+### 2. 安装依赖
+
 ```bash
+cd DecisionSupportFrontend
 npm install
+```
+
+### 3. 启动开发服务器
+
+```bash
 npm run dev      # 开发服务器：http://localhost:5173
+```
+
+其他命令：
+```bash
 npm run build    # 生产构建
 npm run preview  # 预览生产构建
 ```
@@ -60,7 +77,11 @@ npm run preview  # 预览生产构建
 ```
 src/
 ├── types.ts                  # 全局 TypeScript 类型定义
-├── mockData.ts               # Mock 数据（艺人 + 视频 + 分析数据）
+├── api/
+│   └── client.ts             # API 客户端（封装后端接口调用）
+├── hooks/
+│   ├── useArtists.ts         # 艺人数据获取 Hook
+│   └── useVideos.ts          # 视频数据获取 Hooks
 ├── App.tsx                   # 路由配置
 ├── main.tsx                  # 入口
 ├── index.css                 # 全局样式 & Tailwind 指令
@@ -78,12 +99,51 @@ src/
     └── VideoAnalysis.tsx     # 视频分析详情页
 ```
 
-## 对接后端
+## API 对接
 
-当前所有数据来自 `src/mockData.ts`。后续对接后端时，替换以下逻辑：
+前端已通过自定义 Hooks 对接后端 API：
 
-- `getArtistById(id)` → `GET /api/v1/artists/:id`
-- `getVideoByBvId(bvId)` → `GET /api/v1/video/:bvId`
-- 视频分析数据 → 后端 NLP 模型推理结果（情感分类、意图识别、Qwen 摘要）
+| Hook | 功能 | 后端接口 |
+|------|------|----------|
+| `useArtists()` | 获取所有艺人列表 | `GET /api/v1/artists` |
+| `useArtist(id)` | 获取单个艺人详情 | `GET /api/v1/artists/:id` |
+| `useVideos()` | 获取视频列表（支持筛选） | `GET /api/v1/videos` |
+| `useVideo(bvId)` | 获取视频详情 | `GET /api/v1/video/:bvId` |
+| `useVideoAnalysis(bvId)` | 获取视频分析结果 | `GET /api/v1/analysis/:bvId` |
+| `crawlVideo(bvId)` | 触发视频爬虫 | `POST /api/v1/crawl/:bvId` |
+| `analyzeVideo(bvId)` | 触发 NLP 分析 | `POST /api/v1/analyze/:bvId` |
 
-后端服务地址见 `../DecisionSupportSystem`，默认运行在 `http://localhost:8000`。
+后端服务地址：`http://localhost:8000`，详见 `../DecisionSupportSystem`。
+
+## 开发指南
+
+### 添加新 API 调用
+
+在 `src/api/client.ts` 中添加：
+
+```typescript
+export async function getComments(bvId: string) {
+  const res = await fetch(`${API_BASE}/comments/${bvId}`);
+  if (!res.ok) throw new Error('Failed to fetch comments');
+  return res.json();
+}
+```
+
+### 添加新 Hook
+
+在 `src/hooks/` 目录下创建（参考现有 hooks）：
+
+```typescript
+export function useComments(bvId: string) {
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getComments(bvId)
+      .then(setComments)
+      .finally(() => setLoading(false));
+  }, [bvId]);
+
+  return { comments, loading };
+}
+```

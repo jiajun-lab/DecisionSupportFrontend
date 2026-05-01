@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Heart, Coins, Star, MessageSquare, Clock, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
-import { getVideoByBvId, getArtistById } from '../mockData';
+import { ArrowLeft, Eye, Heart, Coins, Star, MessageSquare, Clock, AlertTriangle, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useVideo } from '../hooks';
 import SentimentRadar from '../components/charts/SentimentRadar';
 import HotspotTimeline from '../components/charts/HotspotTimeline';
 import IntentChart from '../components/charts/IntentChart';
@@ -33,9 +33,32 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 export default function VideoAnalysis() {
   const { bvId } = useParams<{ bvId: string }>();
   const navigate = useNavigate();
+  const { video, loading, error } = useVideo(bvId);
 
-  const video = bvId ? getVideoByBvId(bvId) : undefined;
-  const artist = video ? getArtistById(video.artistId) : undefined;
+  // 加载状态
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <span className="ml-3 text-slate-400">加载中...</span>
+      </div>
+    );
+  }
+
+  // 错误状态
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="text-red-400 mb-4">加载失败: {error.message}</div>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+        >
+          重试
+        </button>
+      </div>
+    );
+  }
 
   if (!video) {
     return (
@@ -45,7 +68,7 @@ export default function VideoAnalysis() {
     );
   }
 
-  const risk = riskConfig[video.riskLevel];
+  const risk = riskConfig[video.riskLevel as keyof typeof riskConfig] || riskConfig.low;
   const RiskIcon = risk.icon;
   const scoreColor = video.sentimentScore >= 80 ? '#34d399' : video.sentimentScore >= 60 ? '#fbbf24' : '#f87171';
 
@@ -57,6 +80,21 @@ export default function VideoAnalysis() {
     { icon: MessageSquare, label: '弹幕',  value: fmt(video.danmakuCount) },
     { icon: Clock,         label: '时长',  value: video.duration },
   ];
+
+  // 分析数据不存在时的空状态
+  const emptyAnalysis = {
+    sentiment: { praise: 0, discussion: 0, adDislike: 0, attack: 0, sarcasm: 0 },
+    timeline: [],
+    hotspots: [],
+    intent: { waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0 },
+    aiSummary: {
+      overview: '暂无分析数据',
+      keyPoints: ['请先点击分析按钮生成报告'],
+      riskAlerts: [],
+      recommendations: [],
+      hotMemes: []
+    }
+  };
 
   return (
     <div className="p-8 animate-fade-in">
@@ -90,12 +128,14 @@ export default function VideoAnalysis() {
                   {video.title}
                 </h1>
                 <div className="flex items-center gap-3">
-                  {artist && (
+                  {video.artistName && (
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${artist.avatarColor} flex items-center justify-center`}>
-                        <span className="text-[8px] font-bold text-white">{artist.initials}</span>
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center"
+                        style={{ background: `linear-gradient(135deg, ${video.coverGradient[0]}, ${video.coverGradient[1]})` }}
+                      >
+                        <span className="text-[8px] font-bold text-white">{video.artistName[0]}</span>
                       </div>
-                      <span className="text-xs text-slate-500">{artist.name}</span>
+                      <span className="text-xs text-slate-500">{video.artistName}</span>
                     </div>
                   )}
                   <span className="text-slate-700">·</span>
@@ -137,13 +177,13 @@ export default function VideoAnalysis() {
       <div className="grid grid-cols-2 gap-5 mb-5">
         {/* Sentiment Radar */}
         <Panel title="情感分布雷达">
-          <SentimentRadar analysis={video.analysis} />
+          <SentimentRadar analysis={video.analysis || emptyAnalysis} />
         </Panel>
 
         {/* Intent Distribution */}
         <Panel title="评论意图分布">
           <p className="text-xs text-slate-600 mb-3">评论按意图类型的占比分析</p>
-          <IntentChart analysis={video.analysis} />
+          <IntentChart analysis={video.analysis || emptyAnalysis} />
 
           {/* Intent legend */}
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -169,13 +209,13 @@ export default function VideoAnalysis() {
       <div className="mb-5">
         <Panel title="弹幕爆点时间线">
           <p className="text-xs text-slate-600 mb-4">视频各时间段弹幕密度分布，蓝色区域为系统标注爆点</p>
-          <HotspotTimeline analysis={video.analysis} />
+          <HotspotTimeline analysis={video.analysis || emptyAnalysis} />
         </Panel>
       </div>
 
       {/* AI Summary - full width */}
       <Panel title="AI 智能分析报告">
-        <AISummary analysis={video.analysis} />
+        <AISummary analysis={video.analysis || emptyAnalysis} />
       </Panel>
 
       {/* Back button */}
@@ -184,7 +224,7 @@ export default function VideoAnalysis() {
           onClick={() => navigate(`/artist/${video.artistId}`)}
           className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors group">
           <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-          返回 {artist?.name} 的视频列表
+          返回 {video.artistName || '艺人'} 的视频列表
         </button>
       </div>
     </div>
