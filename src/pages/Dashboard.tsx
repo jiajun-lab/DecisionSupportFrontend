@@ -4,6 +4,7 @@ import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus
 import { useArtists } from '../hooks';
 import { deleteArtist } from '../api/client';
 import RegisterArtistModal from '../components/RegisterArtistModal';
+import { BilibiliLoginModal } from '../components/BilibiliLoginModal';
 
 function fmt(n: number): string {
   if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿';
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { artists, loading, error, refresh } = useArtists();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBilibiliLoginModalOpen, setIsBilibiliLoginModalOpen] = useState(false);
 
   // 删除相关状态
   const [artistToDelete, setArtistToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -86,13 +88,22 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-slate-100">MCN 内容决策中心</h1>
           <p className="text-sm text-slate-500 mt-1">管理旗下艺人的视频舆情、爆点与 AI 分析报告</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
-        >
-          <Plus size={18} />
-          <span className="font-medium">注册新艺人</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsBilibiliLoginModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 rounded-lg transition-colors"
+          >
+            <span className="font-bold text-lg">B</span>
+            <span className="font-medium">管理账号</span>
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+          >
+            <Plus size={18} />
+            <span className="font-medium">注册新艺人</span>
+          </button>
+        </div>
       </div>
 
       {/* Global Stats */}
@@ -218,6 +229,12 @@ export default function Dashboard() {
         onSuccess={() => {
           refresh(); // 刷新艺人列表
         }}
+      />
+
+      {/* B站管理账号登录弹窗 */}
+      <BilibiliLoginModal
+        isOpen={isBilibiliLoginModalOpen}
+        onClose={() => setIsBilibiliLoginModalOpen(false)}
       />
 
       {/* 删除确认弹窗 */}

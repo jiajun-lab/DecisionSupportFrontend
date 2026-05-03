@@ -231,3 +231,66 @@ export async function getVideoWithAnalysis(bvId: string): Promise<Video> {
     analysis: analysisData || undefined,
   };
 }
+
+// ========== B站管理账号登录 API ==========
+
+export interface QRCodeResponse {
+  success: boolean;
+  url: string;
+  qrcode_key: string;
+  expires: number;
+  message: string;
+}
+
+export interface QRStatusResponse {
+  status: 'pending' | 'scanned' | 'confirmed' | 'expired' | 'error';
+  message: string;
+  cookie?: string;
+}
+
+export interface LoginStatusResponse {
+  logged_in: boolean;
+  login_time?: string;
+  expires_in: number;
+  message: string;
+}
+
+/**
+ * 获取B站登录二维码
+ */
+export async function getBilibiliQRCode(): Promise<QRCodeResponse> {
+  return fetchApi('/auth/bilibili/qrcode');
+}
+
+/**
+ * 检查二维码扫描状态
+ */
+export async function checkBilibiliQRStatus(qrcodeKey: string): Promise<QRStatusResponse> {
+  return fetchApi(`/auth/bilibili/qrcode/status?qrcode_key=${qrcodeKey}`);
+}
+
+/**
+ * 手动设置B站Cookie
+ */
+export async function setBilibiliCookie(cookie: string): Promise<{ success: boolean; message: string }> {
+  return fetchApi('/auth/bilibili/cookie', {
+    method: 'POST',
+    body: JSON.stringify({ cookie }),
+  });
+}
+
+/**
+ * 获取B站登录状态
+ */
+export async function getBilibiliLoginStatus(): Promise<LoginStatusResponse> {
+  return fetchApi('/auth/bilibili/status');
+}
+
+/**
+ * 登出B站账号
+ */
+export async function logoutBilibili(): Promise<{ success: boolean; message: string }> {
+  return fetchApi('/auth/bilibili/logout', {
+    method: 'DELETE',
+  });
+}
