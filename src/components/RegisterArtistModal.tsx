@@ -4,18 +4,20 @@
  */
 
 import { useState } from 'react';
-import { X, UserPlus, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, UserPlus, Loader2, CheckCircle, AlertCircle, LogIn } from 'lucide-react';
 import { registerArtistByUid } from '../api/client';
 
 interface RegisterArtistModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  isLoggedIn?: boolean;
+  onOpenLogin?: () => void;
 }
 
 type Step = 'input' | 'submitting' | 'success' | 'error';
 
-export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: RegisterArtistModalProps) {
+export default function RegisterArtistModal({ isOpen, onClose, onSuccess, isLoggedIn = false, onOpenLogin }: RegisterArtistModalProps) {
   const [uid, setUid] = useState('');
   const [bvid, setBvid] = useState('');
   const [cookie, setCookie] = useState('');
@@ -29,8 +31,13 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async () => {
-    if (!uid.trim() || !bvid.trim()) {
-      setErrorMessage('请填写UID和BV号');
+    if (!uid.trim()) {
+      setErrorMessage('请填写UID');
+      return;
+    }
+    // 未登录时需要BV号验证
+    if (!isLoggedIn && !bvid.trim()) {
+      setErrorMessage('未登录管理账号，请提供BV号进行验证');
       return;
     }
 
@@ -38,7 +45,7 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
     setErrorMessage('');
 
     try {
-      const response = await registerArtistByUid(uid.trim(), bvid.trim(), cookie.trim() || undefined);
+      const response = await registerArtistByUid(uid.trim(), bvid.trim() || undefined, cookie.trim() || undefined);
 
       if (response.code === 200 && response.data.artist) {
         setResult({
@@ -103,9 +110,32 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
         <div className="p-6">
           {step === 'input' && (
             <div className="space-y-4">
+              {/* 登录提醒 */}
+              {!isLoggedIn && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <LogIn size={16} className="text-amber-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-xs text-amber-300">
+                      登录管理账号后，仅需UID即可注册
+                    </p>
+                  </div>
+                  {onOpenLogin && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onOpenLogin();
+                      }}
+                      className="text-xs text-amber-400 hover:text-amber-300 underline"
+                    >
+                      去登录
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  B站 UID
+                  B站 UID <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -119,51 +149,57 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
                 </p>
               </div>
 
+              {/* BV号 - 未登录时必填，登录后可选 */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  验证 BV号
+                  验证 BV号 {!isLoggedIn && <span className="text-red-400">*</span>}
+                  {isLoggedIn && <span className="text-slate-500 text-xs">（可选）</span>}
                 </label>
                 <input
                   type="text"
                   value={bvid}
                   onChange={(e) => setBvid(e.target.value)}
-                  placeholder="例如：BV1GJ411x7h7"
+                  placeholder={isLoggedIn ? "不填则自动获取该UP主视频" : "例如：BV1GJ411x7h7"}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all"
                 />
                 <p className="mt-1.5 text-xs text-slate-500">
-                  该UP主任意一个视频的BV号，用于验证身份
+                  {isLoggedIn
+                    ? "填写后优先处理该视频，不填则自动获取UP主最近视频"
+                    : "该UP主任意一个视频的BV号，用于验证身份"}
                 </p>
               </div>
 
-              {/* Cookie 输入（可选） */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-slate-300">
-                    B站 Cookie（可选）
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowCookie(!showCookie)}
-                    className="text-xs text-blue-400 hover:text-blue-300"
-                  >
-                    {showCookie ? '收起' : '展开'}
-                  </button>
+              {/* Cookie 输入（可选） - 仅在未登录时显示 */}
+              {!isLoggedIn && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-300">
+                      B站 Cookie（可选）
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowCookie(!showCookie)}
+                      className="text-xs text-blue-400 hover:text-blue-300"
+                    >
+                      {showCookie ? '收起' : '展开'}
+                    </button>
+                  </div>
+                  {showCookie && (
+                    <>
+                      <textarea
+                        value={cookie}
+                        onChange={(e) => setCookie(e.target.value)}
+                        placeholder="粘贴B站Cookie，用于获取真实粉丝数和更多视频..."
+                        rows={3}
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all text-xs font-mono"
+                      />
+                      <p className="mt-1.5 text-xs text-slate-500">
+                        在B站网页版登录后，打开开发者工具-Application-Cookies，复制bilibili.com下的所有Cookie
+                      </p>
+                    </>
+                  )}
                 </div>
-                {showCookie && (
-                  <>
-                    <textarea
-                      value={cookie}
-                      onChange={(e) => setCookie(e.target.value)}
-                      placeholder="粘贴B站Cookie，用于获取真实粉丝数和更多视频..."
-                      rows={3}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all text-xs font-mono"
-                    />
-                    <p className="mt-1.5 text-xs text-slate-500">
-                      在B站网页版登录后，打开开发者工具-Application-Cookies，复制bilibili.com下的所有Cookie
-                    </p>
-                  </>
-                )}
-              </div>
+              )}
 
               {errorMessage && (
                 <div className="flex items-center gap-2 text-red-400 text-sm">
@@ -175,7 +211,7 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
               <div className="pt-2">
                 <button
                   onClick={handleSubmit}
-                  disabled={!uid.trim() || !bvid.trim()}
+                  disabled={!uid.trim() || (!isLoggedIn && !bvid.trim())}
                   className="w-full py-3 bg-blue-500/20 hover:bg-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed text-blue-400 font-medium rounded-lg transition-colors"
                 >
                   注册并分析
@@ -198,6 +234,12 @@ export default function RegisterArtistModal({ isOpen, onClose, onSuccess }: Regi
               <Loader2 size={48} className="text-blue-400 animate-spin mb-4" />
               <p className="text-slate-300 font-medium">正在注册并分析...</p>
               <p className="text-sm text-slate-500 mt-2">这可能需要30-60秒</p>
+              <button
+                onClick={handleClose}
+                className="mt-6 px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-400 rounded-lg transition-colors"
+              >
+                关闭
+              </button>
             </div>
           )}
 

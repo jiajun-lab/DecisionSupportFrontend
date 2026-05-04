@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus, Trash2, X, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus, Trash2, X, AlertTriangle, LogIn } from 'lucide-react';
 import { useArtists } from '../hooks';
 import { deleteArtist } from '../api/client';
 import RegisterArtistModal from '../components/RegisterArtistModal';
 import { BilibiliLoginModal } from '../components/BilibiliLoginModal';
+import { useBilibiliAuth } from '../hooks/useBilibiliAuth';
 
 function fmt(n: number): string {
   if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿';
@@ -15,6 +16,7 @@ function fmt(n: number): string {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { artists, loading, error, refresh } = useArtists();
+  const { isLoggedIn } = useBilibiliAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBilibiliLoginModalOpen, setIsBilibiliLoginModalOpen] = useState(false);
 
@@ -146,6 +148,27 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* 管理账号登录提醒 */}
+      {!isLoggedIn && (
+        <div className="mb-8 flex items-center gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+          <LogIn size={16} className="text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-amber-300">
+              未登录B站管理账号
+            </p>
+            <p className="text-xs text-amber-400/70 mt-0.5">
+              登录后可获取准确的粉丝数、获赞数等数据，且注册新艺人时仅需UID
+            </p>
+          </div>
+          <button
+            onClick={() => setIsBilibiliLoginModalOpen(true)}
+            className="text-[11px] text-amber-400 hover:text-amber-300 border border-amber-500/20 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            立即登录
+          </button>
+        </div>
+      )}
+
       {/* Artists Grid */}
       <div>
         <div className="flex items-center justify-between mb-5">
@@ -229,6 +252,8 @@ export default function Dashboard() {
         onSuccess={() => {
           refresh(); // 刷新艺人列表
         }}
+        isLoggedIn={isLoggedIn}
+        onOpenLogin={() => setIsBilibiliLoginModalOpen(true)}
       />
 
       {/* B站管理账号登录弹窗 */}

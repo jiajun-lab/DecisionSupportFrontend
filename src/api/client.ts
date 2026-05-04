@@ -75,7 +75,7 @@ export async function deleteArtist(artistId: string): Promise<{ code: number; me
  */
 export async function registerArtistByUid(
   uid: string,
-  bvid: string,
+  bvid?: string,
   cookie?: string
 ): Promise<{
   code: number;
