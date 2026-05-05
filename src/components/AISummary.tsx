@@ -14,7 +14,7 @@ export default function AISummary({ analysis }: Props) {
       <div className="p-4 rounded-xl border border-blue-500/15 bg-blue-500/5">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles size={13} className="text-blue-400" />
-          <span className="text-[11px] font-semibold text-blue-400 uppercase tracking-wide">AI 综合评述</span>
+          <span className="text-[11px] font-semibold text-blue-400 uppercase tracking-wide">AI Overview</span>
         </div>
         <p className="text-sm text-slate-300 leading-relaxed">{aiSummary.overview}</p>
       </div>
@@ -24,7 +24,7 @@ export default function AISummary({ analysis }: Props) {
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <Lightbulb size={13} className="text-amber-400" />
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">核心洞察</span>
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Key Insights</span>
           </div>
           <div className="space-y-2">
             {aiSummary.keyPoints.map((point, i) => (
@@ -45,7 +45,7 @@ export default function AISummary({ analysis }: Props) {
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <AlertTriangle size={13} className="text-red-400" />
-            <span className="text-[11px] font-semibold text-red-400 uppercase tracking-wide">风险预警</span>
+            <span className="text-[11px] font-semibold text-red-400 uppercase tracking-wide">Risk Alerts</span>
           </div>
           <div className="space-y-2">
             {aiSummary.riskAlerts.map((alert, i) => (
@@ -62,7 +62,7 @@ export default function AISummary({ analysis }: Props) {
       {aiSummary.recommendations.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-2.5">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">运营建议</span>
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Recommendations</span>
           </div>
           <div className="space-y-2">
             {aiSummary.recommendations.map((rec, i) => (
@@ -80,7 +80,7 @@ export default function AISummary({ analysis }: Props) {
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <Hash size={13} className="text-purple-400" />
-            <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wide">热梗追踪</span>
+            <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wide">Trending Phrases</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {aiSummary.hotMemes.map((meme, i) => (

@@ -20,8 +20,8 @@ export default function Sidebar() {
             <Zap size={16} className="text-white" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-100 leading-tight">MCN 决策平台</p>
-            <p className="text-[10px] text-slate-500 leading-tight mt-0.5">内容舆情监控系统</p>
+            <p className="text-sm font-semibold text-slate-100 leading-tight">MCN Platform</p>
+            <p className="text-[10px] text-slate-500 leading-tight mt-0.5">Content Sentiment Monitor</p>
           </div>
         </div>
       </div>
@@ -39,7 +39,7 @@ export default function Sidebar() {
             }`
           }>
           <LayoutDashboard size={15} />
-          <span>总览</span>
+          <span>Overview</span>
         </NavLink>
 
         {/* Artists section */}
@@ -48,7 +48,7 @@ export default function Sidebar() {
             onClick={() => setArtistsExpanded(v => !v)}
             className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold text-slate-500 uppercase tracking-widest hover:text-slate-400 transition-colors">
             {artistsExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-            艺人
+            Artists
           </button>
 
           {artistsExpanded && (
@@ -86,9 +86,9 @@ export default function Sidebar() {
       <div className="px-4 py-4 border-t border-white/[0.06]">
         <button className="w-full flex items-center gap-3 px-2 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-400 transition-colors">
           <Settings size={13} />
-          <span>系统设置</span>
+          <span>Settings</span>
         </button>
-        <p className="text-[10px] text-slate-700 mt-2 px-2">v0.1.0 · 仅限内部使用</p>
+        <p className="text-[10px] text-slate-700 mt-2 px-2">v0.1.0 · Internal Use Only</p>
       </div>
     </aside>
   );

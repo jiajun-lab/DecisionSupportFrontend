@@ -3,8 +3,8 @@ import { Eye, Heart, Star, MessageSquare, Clock, AlertTriangle, CheckCircle, Ale
 import type { Video } from '../types';
 
 function fmt(n: number): string {
-  if (n >= 10000000) return (n / 10000000).toFixed(1) + '千万';
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  if (n >= 10000000) return (n / 10000000).toFixed(1) + 'KW';
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'W';
   return n.toString();
 }
 
@@ -13,9 +13,9 @@ interface Props {
 }
 
 const riskConfig = {
-  low:    { label: '健康', icon: CheckCircle, cls: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
-  medium: { label: '关注', icon: AlertCircle,  cls: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  high:   { label: '预警', icon: AlertTriangle, cls: 'text-red-400 bg-red-400/10 border-red-400/20' },
+  low:    { label: 'Healthy',  icon: CheckCircle, cls: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
+  medium: { label: 'Monitor',  icon: AlertCircle,  cls: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+  high:   { label: 'Alert',    icon: AlertTriangle, cls: 'text-red-400 bg-red-400/10 border-red-400/20' },
 };
 
 export default function VideoCard({ video }: Props) {
@@ -63,7 +63,7 @@ export default function VideoCard({ video }: Props) {
         {/* Sentiment score bar */}
         <div className="mb-3">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-slate-500">舆情健康度</span>
+            <span className="text-[10px] text-slate-500">Sentiment Score</span>
             <span className="text-[11px] font-mono font-bold" style={{ color: scoreColor }}>
               {video.sentimentScore}
             </span>
@@ -77,10 +77,10 @@ export default function VideoCard({ video }: Props) {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-auto">
           {[
-            { icon: Eye,           value: fmt(video.views),       label: '播放' },
-            { icon: Heart,         value: fmt(video.likes),       label: '点赞' },
-            { icon: Star,          value: fmt(video.favorites),   label: '收藏' },
-            { icon: MessageSquare, value: fmt(video.danmakuCount),label: '弹幕' },
+            { icon: Eye,           value: fmt(video.views),        label: 'Views' },
+            { icon: Heart,         value: fmt(video.likes),        label: 'Likes' },
+            { icon: Star,          value: fmt(video.favorites),    label: 'Favorites' },
+            { icon: MessageSquare, value: fmt(video.danmakuCount), label: 'Danmaku' },
           ].map(({ icon: Icon, value, label }) => (
             <div key={label} className="flex items-center gap-1.5">
               <Icon size={11} className="text-slate-600 flex-shrink-0" />

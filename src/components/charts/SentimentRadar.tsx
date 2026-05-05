@@ -16,11 +16,11 @@ export default function SentimentRadar({ analysis }: Props) {
     radar: {
       shape: 'circle',
       indicator: [
-        { name: '赞美共鸣', max: 100 },
-        { name: '剧情讨论', max: 100 },
-        { name: '广告反感', max: 100 },
-        { name: '恶意攻击', max: 100 },
-        { name: '反讽', max: 100 },
+        { name: 'Praise', max: 100 },
+        { name: 'Discussion', max: 100 },
+        { name: 'Ad Dislike', max: 100 },
+        { name: 'Attack', max: 100 },
+        { name: 'Sarcasm', max: 100 },
       ],
       center: ['50%', '50%'],
       radius: '68%',
@@ -50,7 +50,7 @@ export default function SentimentRadar({ analysis }: Props) {
               pct(sentiment.attack),
               pct(sentiment.sarcasm),
             ],
-            name: '情感分布',
+            name: 'Sentiment Distribution',
             areaStyle: {
               color: {
                 type: 'radial',
@@ -77,11 +77,11 @@ export default function SentimentRadar({ analysis }: Props) {
   };
 
   const items = [
-    { label: '赞美共鸣', value: pct(sentiment.praise), color: '#34d399' },
-    { label: '剧情讨论', value: pct(sentiment.discussion), color: '#3b82f6' },
-    { label: '广告反感', value: pct(sentiment.adDislike), color: '#fbbf24' },
-    { label: '恶意攻击', value: pct(sentiment.attack), color: '#f87171' },
-    { label: '反讽', value: pct(sentiment.sarcasm), color: '#a78bfa' },
+    { label: 'Praise',      value: pct(sentiment.praise),     color: '#34d399' },
+    { label: 'Discussion',  value: pct(sentiment.discussion), color: '#3b82f6' },
+    { label: 'Ad Dislike',  value: pct(sentiment.adDislike),  color: '#fbbf24' },
+    { label: 'Attack',      value: pct(sentiment.attack),     color: '#f87171' },
+    { label: 'Sarcasm',     value: pct(sentiment.sarcasm),    color: '#a78bfa' },
   ];
 
   return (

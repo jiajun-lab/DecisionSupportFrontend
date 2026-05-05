@@ -1,10 +1,10 @@
 /**
- * B站管理账号登录弹窗
+ * Bilibili Admin Account Login Modal
  *
- * 功能：
- * 1. 扫码登录（二维码）
- * 2. 手动输入Cookie登录
- * 3. 显示登录状态
+ * Features:
+ * 1. QR code scan login
+ * 2. Manual Cookie login
+ * 3. Login status display
  */
 
 import { useState } from 'react';
@@ -36,7 +36,6 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
     logout,
   } = useBilibiliAuth();
 
-  // 提交Cookie登录
   const handleCookieSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cookieInput.trim()) return;
@@ -48,7 +47,6 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
     }
   };
 
-  // 处理关闭
   const handleClose = () => {
     cancelQRLogin();
     setActiveTab('qr');
@@ -56,25 +54,23 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
     onClose();
   };
 
-  // 处理登出
   const handleLogout = async () => {
     await logout();
   };
 
   if (!isOpen) return null;
 
-  // 格式化过期时间
   const formatExpiresIn = (seconds: number) => {
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
-    if (days > 0) return `${days}天${hours}小时`;
-    return `${hours}小时`;
+    if (days > 0) return `${days}d ${hours}h`;
+    return `${hours}h`;
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="relative w-full max-w-md rounded-xl border border-white/10 bg-[#0f172a] p-6 shadow-2xl">
-        {/* 关闭按钮 */}
+        {/* Close button */}
         <button
           onClick={handleClose}
           className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
@@ -82,28 +78,28 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
           <X size={20} />
         </button>
 
-        {/* 标题 */}
+        {/* Title */}
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20">
             <span className="text-lg font-bold text-pink-400">B</span>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">B站管理账号登录</h2>
-            <p className="text-sm text-slate-400">登录后可获取更准确的粉丝数、获赞数等数据</p>
+            <h2 className="text-lg font-semibold text-white">Bilibili Admin Login</h2>
+            <p className="text-sm text-slate-400">Log in for accurate fan counts and engagement data</p>
           </div>
         </div>
 
-        {/* 已登录状态 */}
+        {/* Logged-in state */}
         {isLoggedIn ? (
           <div className="space-y-4">
             <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4">
               <div className="flex items-center gap-2 text-emerald-400">
                 <CheckCircle size={20} />
-                <span className="font-medium">已登录</span>
+                <span className="font-medium">Logged In</span>
               </div>
               <div className="mt-2 space-y-1 text-sm text-slate-300">
-                <p>登录时间: {loginTime ? new Date(loginTime).toLocaleString() : '-'}</p>
-                <p>有效期剩余: {formatExpiresIn(expiresIn)}</p>
+                <p>Login time: {loginTime ? new Date(loginTime).toLocaleString() : '-'}</p>
+                <p>Expires in: {formatExpiresIn(expiresIn)}</p>
               </div>
             </div>
 
@@ -117,12 +113,12 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
               ) : (
                 <LogOut size={18} />
               )}
-              <span>退出登录</span>
+              <span>Log Out</span>
             </button>
           </div>
         ) : (
           <>
-            {/* 选项卡 */}
+            {/* Tabs */}
             <div className="mb-6 flex gap-2 rounded-lg bg-white/5 p-1">
               <button
                 onClick={() => setActiveTab('qr')}
@@ -133,7 +129,7 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                 }`}
               >
                 <ScanLine size={16} />
-                扫码登录
+                QR Login
               </button>
               <button
                 onClick={() => setActiveTab('cookie')}
@@ -144,11 +140,11 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                 }`}
               >
                 <Cookie size={16} />
-                Cookie登录
+                Cookie Login
               </button>
             </div>
 
-            {/* 扫码登录 */}
+            {/* QR Login */}
             {activeTab === 'qr' && (
               <div className="space-y-4">
                 {qrStatus === 'idle' ? (
@@ -157,22 +153,22 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                       <ScanLine size={32} className="text-slate-400" />
                     </div>
                     <p className="mb-4 text-center text-slate-400">
-                      使用B站App扫描二维码登录
+                      Scan with Bilibili App to log in
                     </p>
                     <button
                       onClick={startQRLogin}
                       className="rounded-lg bg-blue-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
                     >
-                      获取二维码
+                      Get QR Code
                     </button>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center py-4">
-                    {/* 二维码 */}
+                    {/* QR Code */}
                     <div className="relative mb-4 rounded-lg bg-white p-3">
                       {qrCodeUrl ? (
                         <div className="flex h-48 w-48 items-center justify-center text-slate-800">
-                          <p className="text-center text-xs">二维码内容:<br/>{qrCodeUrl.slice(0, 50)}...</p>
+                          <p className="text-center text-xs">QR code content:<br/>{qrCodeUrl.slice(0, 50)}...</p>
                         </div>
                       ) : (
                         <div className="flex h-48 w-48 items-center justify-center">
@@ -180,7 +176,7 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                         </div>
                       )}
 
-                      {/* 遮罩层 */}
+                      {/* Overlay */}
                       {(qrStatus === 'confirmed' || qrStatus === 'expired' || qrStatus === 'error') && (
                         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/70">
                           {qrStatus === 'confirmed' && (
@@ -189,14 +185,14 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                           {qrStatus === 'expired' && (
                             <div className="text-center">
                               <AlertCircle size={32} className="mx-auto mb-2 text-amber-400" />
-                              <span className="text-sm text-white">已过期</span>
+                              <span className="text-sm text-white">Expired</span>
                             </div>
                           )}
                         </div>
                       )}
                     </div>
 
-                    {/* 状态消息 */}
+                    {/* Status message */}
                     <p className={`text-center text-sm ${
                       qrStatus === 'error' ? 'text-red-400' :
                       qrStatus === 'confirmed' ? 'text-emerald-400' :
@@ -205,23 +201,23 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                       {qrMessage}
                     </p>
 
-                    {/* 重新获取按钮 */}
+                    {/* Refresh button */}
                     {(qrStatus === 'expired' || qrStatus === 'error') && (
                       <button
                         onClick={startQRLogin}
                         className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
                       >
-                        重新获取
+                        Refresh
                       </button>
                     )}
 
-                    {/* 取消按钮 */}
+                    {/* Cancel button */}
                     {(qrStatus === 'pending' || qrStatus === 'scanned') && (
                       <button
                         onClick={cancelQRLogin}
                         className="mt-4 text-sm text-slate-400 transition-colors hover:text-white"
                       >
-                        取消
+                        Cancel
                       </button>
                     )}
                   </div>
@@ -229,12 +225,12 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
               </div>
             )}
 
-            {/* Cookie登录 */}
+            {/* Cookie Login */}
             {activeTab === 'cookie' && (
               <form onSubmit={handleCookieSubmit} className="space-y-4">
                 <div>
                   <label className="mb-2 block text-sm text-slate-300">
-                    B站Cookie
+                    Bilibili Cookie
                   </label>
                   <textarea
                     value={cookieInput}
@@ -244,7 +240,7 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                     className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
                   />
                   <p className="mt-2 text-xs text-slate-500">
-                    提示：在B站网页版登录后，通过浏览器开发者工具复制Cookie
+                    Hint: Log in to the Bilibili website and copy the Cookie from your browser's developer tools
                   </p>
                 </div>
 
@@ -258,7 +254,7 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                   ) : (
                     <>
                       <Cookie size={18} />
-                      登录
+                      Login
                     </>
                   )}
                 </button>

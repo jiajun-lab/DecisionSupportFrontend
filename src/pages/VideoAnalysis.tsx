@@ -7,15 +7,15 @@ import IntentChart from '../components/charts/IntentChart';
 import AISummary from '../components/AISummary';
 
 function fmt(n: number): string {
-  if (n >= 10000000) return (n / 10000000).toFixed(1) + '千万';
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  if (n >= 10000000) return (n / 10000000).toFixed(1) + 'KW';
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'W';
   return n.toString();
 }
 
 const riskConfig = {
-  low:    { label: '舆情健康', icon: CheckCircle, cls: 'text-emerald-400 border-emerald-500/25 bg-emerald-500/8' },
-  medium: { label: '需要关注', icon: AlertCircle,  cls: 'text-amber-400 border-amber-500/25 bg-amber-500/8' },
-  high:   { label: '舆情预警', icon: AlertTriangle, cls: 'text-red-400 border-red-500/25 bg-red-500/8' },
+  low:    { label: 'Healthy',  icon: CheckCircle, cls: 'text-emerald-400 border-emerald-500/25 bg-emerald-500/8' },
+  medium: { label: 'Monitor',  icon: AlertCircle,  cls: 'text-amber-400 border-amber-500/25 bg-amber-500/8' },
+  high:   { label: 'Alert',    icon: AlertTriangle, cls: 'text-red-400 border-red-500/25 bg-red-500/8' },
 };
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
@@ -35,26 +35,24 @@ export default function VideoAnalysis() {
   const navigate = useNavigate();
   const { video, loading, error } = useVideo(bvId);
 
-  // 加载状态
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-        <span className="ml-3 text-slate-400">加载中...</span>
+        <span className="ml-3 text-slate-400">Loading...</span>
       </div>
     );
   }
 
-  // 错误状态
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="text-red-400 mb-4">加载失败: {error.message}</div>
+        <div className="text-red-400 mb-4">Failed to load: {error.message}</div>
         <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
         >
-          重试
+          Retry
         </button>
       </div>
     );
@@ -63,7 +61,7 @@ export default function VideoAnalysis() {
   if (!video) {
     return (
       <div className="flex items-center justify-center h-full text-slate-500">
-        视频不存在
+        Video not found
       </div>
     );
   }
@@ -73,23 +71,22 @@ export default function VideoAnalysis() {
   const scoreColor = video.sentimentScore >= 80 ? '#34d399' : video.sentimentScore >= 60 ? '#fbbf24' : '#f87171';
 
   const videoStats = [
-    { icon: Eye,           label: '播放',  value: fmt(video.views) },
-    { icon: Heart,         label: '点赞',  value: fmt(video.likes) },
-    { icon: Coins,         label: '投币',  value: fmt(video.coins) },
-    { icon: Star,          label: '收藏',  value: fmt(video.favorites) },
-    { icon: MessageSquare, label: '弹幕',  value: fmt(video.danmakuCount) },
-    { icon: Clock,         label: '时长',  value: video.duration },
+    { icon: Eye,           label: 'Views',    value: fmt(video.views) },
+    { icon: Heart,         label: 'Likes',    value: fmt(video.likes) },
+    { icon: Coins,         label: 'Coins',    value: fmt(video.coins) },
+    { icon: Star,          label: 'Favorites',value: fmt(video.favorites) },
+    { icon: MessageSquare, label: 'Danmaku',  value: fmt(video.danmakuCount) },
+    { icon: Clock,         label: 'Duration', value: video.duration },
   ];
 
-  // 分析数据不存在时的空状态
   const emptyAnalysis = {
     sentiment: { praise: 0, discussion: 0, adDislike: 0, attack: 0, sarcasm: 0 },
     timeline: [],
     hotspots: [],
     intent: { waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0 },
     aiSummary: {
-      overview: '暂无分析数据',
-      keyPoints: ['请先点击分析按钮生成报告'],
+      overview: 'No analysis data available',
+      keyPoints: ['Click the Analyze button to generate a report'],
       riskAlerts: [],
       recommendations: [],
       hotMemes: []
@@ -101,12 +98,12 @@ export default function VideoAnalysis() {
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm mb-6">
         <button onClick={() => navigate('/')}
-          className="text-slate-600 hover:text-slate-400 transition-colors">总览</button>
+          className="text-slate-600 hover:text-slate-400 transition-colors">Overview</button>
         <span className="text-slate-700">/</span>
         <button onClick={() => navigate(`/artist/${video.artistId}`)}
-          className="text-slate-600 hover:text-slate-400 transition-colors">{video.artistName || '未知艺人'}</button>
+          className="text-slate-600 hover:text-slate-400 transition-colors">{video.artistName || 'Unknown Artist'}</button>
         <span className="text-slate-700">/</span>
-        <span className="text-slate-400">视频分析</span>
+        <span className="text-slate-400">Video Analysis</span>
       </div>
 
       {/* Video Header Card */}
@@ -150,7 +147,7 @@ export default function VideoAnalysis() {
                   {risk.label}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-600">舆情指数</span>
+                  <span className="text-xs text-slate-600">Sentiment Score</span>
                   <span className="text-xl font-bold font-mono" style={{ color: scoreColor }}>
                     {video.sentimentScore}
                   </span>
@@ -176,22 +173,22 @@ export default function VideoAnalysis() {
       {/* Analysis Grid */}
       <div className="grid grid-cols-2 gap-5 mb-5">
         {/* Sentiment Radar */}
-        <Panel title="情感分布雷达">
+        <Panel title="Sentiment Distribution">
           <SentimentRadar analysis={video.analysis || emptyAnalysis} />
         </Panel>
 
         {/* Intent Distribution */}
-        <Panel title="评论意图分布">
-          <p className="text-xs text-slate-600 mb-3">评论按意图类型的占比分析</p>
+        <Panel title="Comment Intent Distribution">
+          <p className="text-xs text-slate-600 mb-3">Breakdown of comments by intent type</p>
           <IntentChart analysis={video.analysis || emptyAnalysis} />
 
           {/* Intent legend */}
           <div className="mt-3 grid grid-cols-2 gap-2">
             {[
-              { key: 'urgeUpdate', label: '催更', color: '#3b82f6', desc: '期待更多内容' },
-              { key: 'suggestion', label: '建议', color: '#8b5cf6', desc: '改进意见' },
-              { key: 'rant',       label: '吐槽', color: '#f59e0b', desc: '负面情绪表达' },
-              { key: 'sponsored',  label: '商业好评', color: '#34d399', desc: '推广类评论' },
+              { key: 'urgeUpdate', label: 'Update Request', color: '#3b82f6', desc: 'Requesting new content' },
+              { key: 'suggestion', label: 'Suggestion',     color: '#8b5cf6', desc: 'Improvement feedback' },
+              { key: 'rant',       label: 'Criticism',      color: '#f59e0b', desc: 'Negative expressions' },
+              { key: 'sponsored',  label: 'Sponsored',      color: '#34d399', desc: 'Promotional comments' },
             ].map(item => (
               <div key={item.key} className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.02]">
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: item.color }} />
@@ -207,14 +204,14 @@ export default function VideoAnalysis() {
 
       {/* Hotspot Timeline - full width */}
       <div className="mb-5">
-        <Panel title="弹幕爆点时间线">
-          <p className="text-xs text-slate-600 mb-4">视频各时间段弹幕密度分布，蓝色区域为系统标注爆点</p>
+        <Panel title="Danmaku Peak Timeline">
+          <p className="text-xs text-slate-600 mb-4">Danmaku density across video time; blue regions are system-detected hotspots</p>
           <HotspotTimeline analysis={video.analysis || emptyAnalysis} />
         </Panel>
       </div>
 
       {/* AI Summary - full width */}
-      <Panel title="AI 智能分析报告">
+      <Panel title="AI Analysis Report">
         <AISummary analysis={video.analysis || emptyAnalysis} />
       </Panel>
 
@@ -224,7 +221,7 @@ export default function VideoAnalysis() {
           onClick={() => navigate(`/artist/${video.artistId}`)}
           className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors group">
           <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-          返回 {video.artistName || '艺人'} 的视频列表
+          Back to {video.artistName || 'Artist'}'s Videos
         </button>
       </div>
     </div>
