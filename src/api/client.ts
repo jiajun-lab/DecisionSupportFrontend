@@ -68,6 +68,25 @@ export async function deleteArtist(artistId: string): Promise<{ code: number; me
 }
 
 /**
+ * 刷新艺人视频数据
+ * 策略：获取B站最新10个视频，跳过已存在的BV号，只处理新增视频
+ */
+export async function refreshArtist(artistId: string): Promise<{
+  code: number;
+  message: string;
+  data: {
+    checked: number;
+    newFound: number;
+    processed: number;
+    skipped: number;
+  }
+}> {
+  return fetchApi(`/artists/${artistId}/refresh`, {
+    method: 'POST',
+  });
+}
+
+/**
  * 通过B站UID注册UP主
  * @param uid B站UID
  * @param bvid 用于验证的BV号（该UP主的任意视频）

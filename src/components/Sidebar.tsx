@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ChevronDown, ChevronRight, Radio, Settings, Zap } from 'lucide-react';
-import { artists } from '../mockData';
+import { LayoutDashboard, ChevronDown, ChevronRight, Settings, Zap, Loader2 } from 'lucide-react';
+import { useArtists } from '../hooks';
 
 export default function Sidebar() {
   const [artistsExpanded, setArtistsExpanded] = useState(true);
   const navigate = useNavigate();
+  const { artists, loading } = useArtists();
 
   return (
     <aside className="w-56 flex-shrink-0 flex flex-col h-full border-r border-white/[0.06]"
@@ -41,22 +42,6 @@ export default function Sidebar() {
           <span>总览</span>
         </NavLink>
 
-        {/* Live Monitor (placeholder) */}
-        <NavLink to="/monitor"
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 ${
-              isActive
-                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
-            }`
-          }>
-          <Radio size={15} />
-          <span>实时监控</span>
-          <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-            LIVE
-          </span>
-        </NavLink>
-
         {/* Artists section */}
         <div className="pt-3">
           <button
@@ -68,20 +53,30 @@ export default function Sidebar() {
 
           {artistsExpanded && (
             <div className="mt-1 space-y-0.5">
-              {artists.map(artist => (
-                <button
-                  key={artist.id}
-                  onClick={() => navigate(`/artist/${artist.id}`)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-150 group">
-                  <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${artist.avatarColor} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[10px] font-bold text-white">{artist.initials}</span>
-                  </div>
-                  <span className="truncate text-left">{artist.name}</span>
-                  <span className="ml-auto text-[10px] text-slate-600 group-hover:text-slate-500 transition-colors font-mono">
-                    {artist.videos.length}
-                  </span>
-                </button>
-              ))}
+              {loading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 size={16} className="animate-spin text-slate-600" />
+                </div>
+              ) : artists.length === 0 ? (
+                <div className="px-3 py-4 text-xs text-slate-600 text-center">
+                  暂无艺人数据
+                </div>
+              ) : (
+                artists.map(artist => (
+                  <button
+                    key={artist.id}
+                    onClick={() => navigate(`/artist/${artist.id}`)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-150 group">
+                    <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${artist.avatarColor} flex items-center justify-center flex-shrink-0`}>
+                      <span className="text-[10px] font-bold text-white">{artist.initials}</span>
+                    </div>
+                    <span className="truncate text-left">{artist.name}</span>
+                    <span className="ml-auto text-[10px] text-slate-600 group-hover:text-slate-500 transition-colors font-mono">
+                      {artist.videos?.length || 0}
+                    </span>
+                  </button>
+                ))
+              )}
             </div>
           )}
         </div>

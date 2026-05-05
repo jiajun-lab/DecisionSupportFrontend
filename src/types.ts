@@ -11,6 +11,20 @@ export interface Artist {
   videos: Video[];
 }
 
+// Simplified artist type for list views (from API)
+export interface ArtistSimple {
+  id: string;
+  name: string;
+  initials: string;
+  avatarColor: [string, string];  // Array format from API
+  category: string;
+  fans: number;
+  totalVideos: number;
+  totalViews: number;
+  latestActivity: string;
+  videos: Video[];
+}
+
 export interface Video {
   bvId: string;
   title: string;

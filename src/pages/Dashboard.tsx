@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus, Trash2, X, AlertTriangle, LogIn } from 'lucide-react';
+import { TrendingUp, Users, PlayCircle, Eye, ArrowRight, Activity, Loader2, Plus, Trash2, X, AlertTriangle, LogIn, RefreshCw } from 'lucide-react';
 import { useArtists } from '../hooks';
-import { deleteArtist } from '../api/client';
+import { deleteArtist, refreshArtist } from '../api/client';
 import RegisterArtistModal from '../components/RegisterArtistModal';
 import { BilibiliLoginModal } from '../components/BilibiliLoginModal';
 import { useBilibiliAuth } from '../hooks/useBilibiliAuth';
@@ -23,6 +23,10 @@ export default function Dashboard() {
   // 删除相关状态
   const [artistToDelete, setArtistToDelete] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // 刷新相关状态
+  const [refreshingId, setRefreshingId] = useState<string | null>(null);
+  const [refreshResult, setRefreshResult] = useState<{ artistId: string; message: string } | null>(null);
 
   // 计算统计数据
   const totalFans = artists.reduce((s, a) => s + (a.fans || 0), 0);
@@ -75,6 +79,30 @@ export default function Dashboard() {
       alert('删除失败: ' + (err.message || '未知错误'));
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // 处理刷新
+  const handleRefresh = async (artistId: string, artistName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (refreshingId) return; // 防止重复点击
+
+    setRefreshingId(artistId);
+    setRefreshResult(null);
+    try {
+      const result = await refreshArtist(artistId);
+      if (result.code === 200) {
+        setRefreshResult({ artistId, message: result.message });
+        refresh(); // 刷新艺人列表
+        // 3秒后清除提示
+        setTimeout(() => setRefreshResult(null), 3000);
+      } else {
+        setRefreshResult({ artistId, message: result.message || '刷新失败' });
+      }
+    } catch (err: any) {
+      setRefreshResult({ artistId, message: '刷新失败: ' + (err.message || '未知错误') });
+    } finally {
+      setRefreshingId(null);
     }
   };
 
@@ -205,7 +233,22 @@ export default function Dashboard() {
                     <p className="text-xs text-slate-500 mt-0.5">{artist.category}</p>
                     <p className="text-xs text-slate-600 mt-0.5">{artist.latestActivity} 最近更新</p>
                   </div>
-                  <ArrowRight size={16} className="text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
+                  {/* 刷新按钮和箭头 */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => handleRefresh(artist.id, artist.name, e)}
+                      disabled={refreshingId === artist.id}
+                      className={`p-1.5 rounded-lg transition-all ${
+                        refreshingId === artist.id
+                          ? 'text-blue-400 cursor-not-allowed'
+                          : 'text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 opacity-0 group-hover:opacity-100'
+                      }`}
+                      title="刷新视频数据"
+                    >
+                      <RefreshCw size={16} className={refreshingId === artist.id ? 'animate-spin' : ''} />
+                    </button>
+                    <ArrowRight size={16} className="text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
+                  </div>
                 </div>
 
                 {/* Stats row */}
@@ -261,6 +304,14 @@ export default function Dashboard() {
         isOpen={isBilibiliLoginModalOpen}
         onClose={() => setIsBilibiliLoginModalOpen(false)}
       />
+
+      {/* 刷新结果提示 */}
+      {refreshResult && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-lg animate-fade-in">
+          <Loader2 size={16} className={refreshingId ? 'animate-spin' : ''} />
+          <span className="text-sm">{refreshResult.message}</span>
+        </div>
+      )}
 
       {/* 删除确认弹窗 */}
       {artistToDelete && (

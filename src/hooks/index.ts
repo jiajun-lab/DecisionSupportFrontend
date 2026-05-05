@@ -4,3 +4,4 @@
 
 export { useArtists, useArtist } from './useArtists';
 export { useVideos, useVideo, useVideoAnalysis } from './useVideos';
+export { useAuth } from '../contexts/AuthContext';
