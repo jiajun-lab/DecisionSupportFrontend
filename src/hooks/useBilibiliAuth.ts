@@ -7,8 +7,6 @@ import * as api from '../api/client';
 
 export type QRStatus = 'idle' | 'pending' | 'scanned' | 'confirmed' | 'expired' | 'error';
 
-export type QRStatus = 'idle' | 'pending' | 'scanned' | 'confirmed' | 'expired' | 'error';
-
 interface UseBilibiliAuthReturn {
   // 登录状态
   isLoggedIn: boolean;
@@ -154,8 +152,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
-        }
-        if (qrStatus === 'pending' || qrStatus === 'scanned') {
+          // Always expire — the polling interval is also cleared so no duplicate state update
           setQrStatus('expired');
           setQrMessage('QR code expired');
         }
@@ -165,7 +162,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
       setQrStatus('error');
       setQrMessage(err instanceof Error ? err.message : 'Login failed');
     }
-  }, [qrStatus, refreshStatus]);
+  }, [refreshStatus]);
 
   /**
    * 取消二维码登录
