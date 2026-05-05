@@ -61,7 +61,7 @@ export default function HotspotTimeline({ analysis }: Props) {
       formatter: (params: unknown) => {
         const arr = params as Array<{ name: string; value: number }>;
         const p = arr[0];
-        return `<b>${p.name}</b><br/>弹幕密度: <b>${p.value}</b> 条/分`;
+        return `<b>${p.name}</b><br/>Danmaku Density: <b>${p.value}</b> /min`;
       },
     },
     xAxis: {
@@ -78,7 +78,7 @@ export default function HotspotTimeline({ analysis }: Props) {
     },
     yAxis: {
       type: 'value',
-      name: '条/分',
+      name: '/min',
       nameTextStyle: { color: '#475569', fontSize: 10 },
       axisLabel: { color: '#475569', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' },
       splitLine: { lineStyle: { color: 'rgba(148,163,184,0.07)', type: 'dashed' } },
@@ -125,7 +125,7 @@ export default function HotspotTimeline({ analysis }: Props) {
             </div>
             <span className="text-[11px] text-slate-400 flex-1">{h.label}</span>
             <span className="text-[10px] font-mono text-slate-600">{fmtTime(h.startSecond)}–{fmtTime(h.endSecond)}</span>
-            <span className="text-[10px] font-mono font-semibold text-blue-400">{h.peakDensity}条/分</span>
+            <span className="text-[10px] font-mono font-semibold text-blue-400">{h.peakDensity}/min</span>
           </div>
         ))}
       </div>

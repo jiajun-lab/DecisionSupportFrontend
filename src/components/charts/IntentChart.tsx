@@ -7,11 +7,11 @@ interface Props {
 }
 
 const INTENT_CONFIG = [
-  { key: 'urgeUpdate',   label: '催更',   color: '#3b82f6' },
-  { key: 'suggestion',   label: '建议',   color: '#8b5cf6' },
-  { key: 'rant',         label: '吐槽',   color: '#f59e0b' },
-  { key: 'waterComment', label: '水贴',   color: '#64748b' },
-  { key: 'sponsored',    label: '商业好评', color: '#34d399' },
+  { key: 'urgeUpdate',   label: 'Update Req',  color: '#3b82f6' },
+  { key: 'suggestion',   label: 'Suggestion',  color: '#8b5cf6' },
+  { key: 'rant',         label: 'Criticism',   color: '#f59e0b' },
+  { key: 'waterComment', label: 'Filler',      color: '#64748b' },
+  { key: 'sponsored',    label: 'Sponsored',   color: '#34d399' },
 ] as const;
 
 export default function IntentChart({ analysis }: Props) {

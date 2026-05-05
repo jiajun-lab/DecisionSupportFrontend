@@ -10,7 +10,7 @@ function PlaceholderPage({ title }: { title: string }) {
       <div className="w-12 h-12 rounded-xl bg-white/[0.04] flex items-center justify-center">
         <span className="text-2xl">🚧</span>
       </div>
-      <p className="text-sm text-slate-500">{title} — 功能即将上线</p>
+      <p className="text-sm text-slate-500">{title} — Coming soon</p>
     </div>
   );
 }
@@ -25,7 +25,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/artist/:id" element={<ArtistVideos />} />
             <Route path="/video/:bvId" element={<VideoAnalysis />} />
-            <Route path="/monitor" element={<PlaceholderPage title="实时监控" />} />
+            <Route path="/monitor" element={<PlaceholderPage title="Live Monitor" />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

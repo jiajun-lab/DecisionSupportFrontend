@@ -63,7 +63,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
       setLoginTime(status.login_time || null);
       setExpiresIn(status.expires_in);
     } catch (err) {
-      console.error('获取B站登录状态失败:', err);
+      console.error('Failed to get Bilibili login status:', err);
       setIsLoggedIn(false);
     } finally {
       setIsLoading(false);
@@ -81,7 +81,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
   const startQRLogin = useCallback(async () => {
     try {
       setQrStatus('pending');
-      setQrMessage('正在获取二维码...');
+      setQrMessage('Fetching QR code...');
       setQrCodeUrl(null);
 
       // 1. 获取二维码
@@ -89,13 +89,13 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
 
       if (!qrResponse.success) {
         setQrStatus('error');
-        setQrMessage(qrResponse.message || '获取二维码失败');
+        setQrMessage(qrResponse.message || 'Failed to get QR code');
         return;
       }
 
       setQrCodeUrl(qrResponse.url);
       qrcodeKeyRef.current = qrResponse.qrcode_key;
-      setQrMessage('请使用B站App扫描二维码');
+      setQrMessage('Scan with Bilibili App');
 
       // 2. 开始轮询
       if (pollingRef.current) {
@@ -108,11 +108,11 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
 
           switch (status.status) {
             case 'pending':
-              setQrMessage('等待扫码...');
+              setQrMessage('Waiting for scan...');
               break;
             case 'scanned':
               setQrStatus('scanned');
-              setQrMessage('已扫码，请在手机上确认登录');
+              setQrMessage('QR scanned — please confirm on your phone');
               break;
             case 'confirmed':
               // 登录成功
@@ -121,7 +121,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
                 pollingRef.current = null;
               }
               setQrStatus('confirmed');
-              setQrMessage('登录成功');
+              setQrMessage('Login successful');
               setQrCodeUrl(null);
 
               // 刷新登录状态
@@ -133,7 +133,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
                 pollingRef.current = null;
               }
               setQrStatus('expired');
-              setQrMessage('二维码已过期，请重试');
+              setQrMessage('QR code expired, please try again');
               break;
             case 'error':
               if (pollingRef.current) {
@@ -141,11 +141,11 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
                 pollingRef.current = null;
               }
               setQrStatus('error');
-              setQrMessage(status.message || '登录失败');
+              setQrMessage(status.message || 'Login failed');
               break;
           }
         } catch (err) {
-          console.error('轮询二维码状态失败:', err);
+          console.error('Failed to poll QR status:', err);
         }
       }, 2000); // 每2秒轮询一次
 
@@ -157,13 +157,13 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
         }
         if (qrStatus === 'pending' || qrStatus === 'scanned') {
           setQrStatus('expired');
-          setQrMessage('二维码已过期');
+          setQrMessage('QR code expired');
         }
       }, qrResponse.expires * 1000);
 
     } catch (err) {
       setQrStatus('error');
-      setQrMessage(err instanceof Error ? err.message : '登录失败');
+      setQrMessage(err instanceof Error ? err.message : 'Login failed');
     }
   }, [qrStatus, refreshStatus]);
 
@@ -197,7 +197,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
         return false;
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Cookie设置失败');
+      alert(err instanceof Error ? err.message : 'Failed to set Cookie');
       return false;
     } finally {
       setIsLoading(false);
@@ -215,7 +215,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
       setLoginTime(null);
       setExpiresIn(0);
     } catch (err) {
-      console.error('登出失败:', err);
+      console.error('Logout failed:', err);
     } finally {
       setIsLoading(false);
     }

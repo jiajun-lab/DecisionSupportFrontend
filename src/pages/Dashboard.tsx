@@ -8,8 +8,8 @@ import { BilibiliLoginModal } from '../components/BilibiliLoginModal';
 import { useBilibiliAuth } from '../hooks/useBilibiliAuth';
 
 function fmt(n: number): string {
-  if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿';
-  if (n >= 10000) return (n / 10000).toFixed(0) + '万';
+  if (n >= 100000000) return (n / 100000000).toFixed(1) + 'B';
+  if (n >= 10000) return (n / 10000).toFixed(0) + 'W';
   return n.toString();
 }
 
@@ -20,59 +20,54 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBilibiliLoginModalOpen, setIsBilibiliLoginModalOpen] = useState(false);
 
-  // 删除相关状态
   const [artistToDelete, setArtistToDelete] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 计算统计数据
   const totalFans = artists.reduce((s, a) => s + (a.fans || 0), 0);
   const totalVideos = artists.reduce((s, a) => s + (a.totalVideos || 0), 0);
   const totalViews = artists.reduce((s, a) => s + (a.totalViews || 0), 0);
-  const activeAlerts = 0; // TODO: 从后端获取风险预警数量
+  const activeAlerts = 0;
 
   const globalStats = [
-    { label: '旗下艺人', value: artists.length.toString(), icon: Users, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-    { label: '总粉丝数', value: fmt(totalFans), icon: TrendingUp, color: '#34d399', bg: 'rgba(52,211,153,0.1)' },
-    { label: '视频作品', value: totalVideos.toString(), icon: PlayCircle, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-    { label: '累计播放', value: fmt(totalViews), icon: Eye, color: '#22d3ee', bg: 'rgba(34,211,238,0.1)' },
+    { label: 'Artists',     value: artists.length.toString(), icon: Users,       color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    { label: 'Total Fans',  value: fmt(totalFans),            icon: TrendingUp,  color: '#34d399', bg: 'rgba(52,211,153,0.1)' },
+    { label: 'Videos',      value: totalVideos.toString(),    icon: PlayCircle,  color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+    { label: 'Total Views', value: fmt(totalViews),           icon: Eye,         color: '#22d3ee', bg: 'rgba(34,211,238,0.1)' },
   ];
 
-  // 加载状态
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-        <span className="ml-3 text-slate-400">加载中...</span>
+        <span className="ml-3 text-slate-400">Loading...</span>
       </div>
     );
   }
 
-  // 错误状态
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="text-red-400 mb-4">加载失败: {error.message}</div>
+        <div className="text-red-400 mb-4">Failed to load: {error.message}</div>
         <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
         >
-          重试
+          Retry
         </button>
       </div>
     );
   }
 
-  // 处理删除
   const handleDelete = async () => {
     if (!artistToDelete) return;
 
     setIsDeleting(true);
     try {
       await deleteArtist(artistToDelete.id);
-      refresh(); // 刷新列表
+      refresh();
       setArtistToDelete(null);
     } catch (err: any) {
-      alert('删除失败: ' + (err.message || '未知错误'));
+      alert('Delete failed: ' + (err.message || 'Unknown error'));
     } finally {
       setIsDeleting(false);
     }
@@ -85,10 +80,10 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot" />
-            <span className="text-[11px] text-emerald-400 font-medium uppercase tracking-widest">系统正常运行</span>
+            <span className="text-[11px] text-emerald-400 font-medium uppercase tracking-widest">System Online</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-100">MCN 内容决策中心</h1>
-          <p className="text-sm text-slate-500 mt-1">管理旗下艺人的视频舆情、爆点与 AI 分析报告</p>
+          <h1 className="text-2xl font-bold text-slate-100">MCN Content Decision Hub</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage artist video sentiment, hotspots and AI analysis reports</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -96,14 +91,14 @@ export default function Dashboard() {
             className="flex items-center gap-2 px-4 py-2.5 bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 rounded-lg transition-colors"
           >
             <span className="font-bold text-lg">B</span>
-            <span className="font-medium">管理账号</span>
+            <span className="font-medium">Admin Account</span>
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
           >
             <Plus size={18} />
-            <span className="font-medium">注册新艺人</span>
+            <span className="font-medium">Register Artist</span>
           </button>
         </div>
       </div>
@@ -119,7 +114,7 @@ export default function Dashboard() {
                   style={{ background: stat.bg }}>
                   <Icon size={17} style={{ color: stat.color }} />
                 </div>
-                {stat.label === '总粉丝数' && (
+                {stat.label === 'Total Fans' && (
                   <span className="text-[10px] text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded font-medium">
                     ↑ 2.3%
                   </span>
@@ -138,33 +133,33 @@ export default function Dashboard() {
           <Activity size={16} className="text-red-400 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-red-300">
-              发现 <span className="font-bold">{activeAlerts}</span> 条视频舆情预警
+              Detected <span className="font-bold">{activeAlerts}</span> video sentiment alert{activeAlerts > 1 ? 's' : ''}
             </p>
-            <p className="text-xs text-red-400/70 mt-0.5">负面评论占比超过阈值，建议优先处理</p>
+            <p className="text-xs text-red-400/70 mt-0.5">Negative comment ratio exceeds threshold — prioritize review</p>
           </div>
           <button className="text-[11px] text-red-400 hover:text-red-300 border border-red-500/20 px-3 py-1.5 rounded-lg transition-colors">
-            查看详情
+            View Details
           </button>
         </div>
       )}
 
-      {/* 管理账号登录提醒 */}
+      {/* Bilibili login reminder */}
       {!isLoggedIn && (
         <div className="mb-8 flex items-center gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
           <LogIn size={16} className="text-amber-400 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-300">
-              未登录B站管理账号
+              Not logged in to Bilibili admin account
             </p>
             <p className="text-xs text-amber-400/70 mt-0.5">
-              登录后可获取准确的粉丝数、获赞数等数据，且注册新艺人时仅需UID
+              Log in for accurate fan counts and engagement data. UID-only registration available after login.
             </p>
           </div>
           <button
             onClick={() => setIsBilibiliLoginModalOpen(true)}
             className="text-[11px] text-amber-400 hover:text-amber-300 border border-amber-500/20 px-3 py-1.5 rounded-lg transition-colors"
           >
-            立即登录
+            Login Now
           </button>
         </div>
       )}
@@ -172,8 +167,8 @@ export default function Dashboard() {
       {/* Artists Grid */}
       <div>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-slate-200">艺人管理</h2>
-          <span className="text-xs text-slate-600">{artists.length} 位艺人</span>
+          <h2 className="text-base font-semibold text-slate-200">Artist Management</h2>
+          <span className="text-xs text-slate-600">{artists.length} artist{artists.length !== 1 ? 's' : ''}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-5">
@@ -203,7 +198,7 @@ export default function Dashboard() {
                       </h3>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">{artist.category}</p>
-                    <p className="text-xs text-slate-600 mt-0.5">{artist.latestActivity} 最近更新</p>
+                    <p className="text-xs text-slate-600 mt-0.5">Last updated {artist.latestActivity}</p>
                   </div>
                   <ArrowRight size={16} className="text-slate-700 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
                 </div>
@@ -211,9 +206,9 @@ export default function Dashboard() {
                 {/* Stats row */}
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {[
-                    { label: '粉丝', value: fmt(artist.fans || 0) },
-                    { label: '视频', value: (artist.totalVideos || 0).toString() },
-                    { label: '获赞', value: fmt(artist.totalViews || 0) },
+                    { label: 'Fans',   value: fmt(artist.fans || 0) },
+                    { label: 'Videos', value: (artist.totalVideos || 0).toString() },
+                    { label: 'Likes',  value: fmt(artist.totalViews || 0) },
                   ].map(s => (
                     <div key={s.label} className="text-center p-2.5 rounded-lg bg-white/[0.025]">
                       <p className="text-sm font-bold font-mono text-slate-200">{s.value}</p>
@@ -233,10 +228,10 @@ export default function Dashboard() {
                       setArtistToDelete({ id: artist.id, name: artist.name });
                     }}
                     className="flex items-center gap-1 px-2 py-1 rounded text-[11px] text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
-                    title="删除艺人"
+                    title="Delete Artist"
                   >
                     <Trash2 size={12} />
-                    删除
+                    Delete
                   </button>
                 </div>
               </div>
@@ -245,24 +240,20 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 注册艺人弹窗 */}
       <RegisterArtistModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={() => {
-          refresh(); // 刷新艺人列表
-        }}
+        onSuccess={() => { refresh(); }}
         isLoggedIn={isLoggedIn}
         onOpenLogin={() => setIsBilibiliLoginModalOpen(true)}
       />
 
-      {/* B站管理账号登录弹窗 */}
       <BilibiliLoginModal
         isOpen={isBilibiliLoginModalOpen}
         onClose={() => setIsBilibiliLoginModalOpen(false)}
       />
 
-      {/* 删除确认弹窗 */}
+      {/* Delete Confirm Modal */}
       {artistToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm card p-6 animate-fade-in">
@@ -271,12 +262,12 @@ export default function Dashboard() {
                 <AlertTriangle size={24} className="text-red-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-slate-100 mb-1">确认删除</h3>
+                <h3 className="text-lg font-semibold text-slate-100 mb-1">Confirm Delete</h3>
                 <p className="text-sm text-slate-500">
-                  确定要删除艺人 <span className="text-slate-300 font-medium">{artistToDelete.name}</span> 吗？
+                  Delete artist <span className="text-slate-300 font-medium">{artistToDelete.name}</span>?
                 </p>
                 <p className="text-xs text-slate-600 mt-2">
-                  此操作将同时删除该艺人下的所有视频、评论和分析数据，不可恢复。
+                  This will permanently delete all videos, comments and analysis data for this artist. This cannot be undone.
                 </p>
               </div>
             </div>
@@ -286,7 +277,7 @@ export default function Dashboard() {
                 disabled={isDeleting}
                 className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-slate-400 rounded-lg transition-colors disabled:opacity-50"
               >
-                取消
+                Cancel
               </button>
               <button
                 onClick={handleDelete}
@@ -296,10 +287,10 @@ export default function Dashboard() {
                 {isDeleting ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    删除中...
+                    Deleting...
                   </>
                 ) : (
-                  '确认删除'
+                  'Confirm Delete'
                 )}
               </button>
             </div>

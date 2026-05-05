@@ -5,8 +5,8 @@ import { useArtist } from '../hooks';
 import VideoCard from '../components/VideoCard';
 
 function fmt(n: number): string {
-  if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿';
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  if (n >= 100000000) return (n / 100000000).toFixed(1) + 'B';
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'W';
   return n.toString();
 }
 
@@ -24,7 +24,7 @@ export default function ArtistVideos() {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-        <span className="ml-3 text-slate-400">加载中...</span>
+        <span className="ml-3 text-slate-400">Loading...</span>
       </div>
     );
   }
@@ -32,12 +32,12 @@ export default function ArtistVideos() {
   if (error || !artist) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="text-red-400 mb-4">{error?.message || '艺人不存在'}</div>
+        <div className="text-red-400 mb-4">{error?.message || 'Artist not found'}</div>
         <button
           onClick={() => navigate('/')}
           className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
         >
-          返回首页
+          Back to Home
         </button>
       </div>
     );
@@ -57,10 +57,10 @@ export default function ArtistVideos() {
     : 0;
 
   const filterButtons: { key: Filter; label: string; color: string }[] = [
-    { key: 'all',    label: '全部',  color: '' },
-    { key: 'low',    label: '健康',  color: 'text-emerald-400' },
-    { key: 'medium', label: '关注',  color: 'text-amber-400' },
-    { key: 'high',   label: '预警',  color: 'text-red-400' },
+    { key: 'all',    label: 'All',     color: '' },
+    { key: 'low',    label: 'Healthy', color: 'text-emerald-400' },
+    { key: 'medium', label: 'Monitor', color: 'text-amber-400' },
+    { key: 'high',   label: 'Alert',   color: 'text-red-400' },
   ];
 
   return (
@@ -70,7 +70,7 @@ export default function ArtistVideos() {
         onClick={() => navigate('/')}
         className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 mb-6 transition-colors group">
         <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
-        返回总览
+        Back to Overview
       </button>
 
       {/* Artist Profile Header */}
@@ -86,10 +86,10 @@ export default function ArtistVideos() {
           </div>
           <div className="grid grid-cols-4 gap-6">
             {[
-              { icon: TrendingUp, label: '粉丝', value: fmt(artist.fans), color: '#34d399' },
-              { icon: Eye,        label: '播放', value: fmt(totalViews),  color: '#3b82f6' },
-              { icon: Heart,      label: '点赞', value: fmt(totalLikes),  color: '#f472b6' },
-              { icon: Star,       label: '均分', value: `${avgScore}`,    color: '#fbbf24' },
+              { icon: TrendingUp, label: 'Fans',      value: fmt(artist.fans), color: '#34d399' },
+              { icon: Eye,        label: 'Views',     value: fmt(totalViews),  color: '#3b82f6' },
+              { icon: Heart,      label: 'Likes',     value: fmt(totalLikes),  color: '#f472b6' },
+              { icon: Star,       label: 'Avg Score', value: `${avgScore}`,    color: '#fbbf24' },
             ].map(s => {
               const Icon = s.icon;
               return (
@@ -124,11 +124,11 @@ export default function ArtistVideos() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-600">排序:</span>
+          <span className="text-xs text-slate-600">Sort:</span>
           {[
-            { key: 'date' as const, label: '最新' },
-            { key: 'views' as const, label: '播放' },
-            { key: 'sentiment' as const, label: '健康度' },
+            { key: 'date' as const,      label: 'Latest' },
+            { key: 'views' as const,     label: 'Views' },
+            { key: 'sentiment' as const, label: 'Health' },
           ].map(s => (
             <button
               key={s.key}
@@ -147,7 +147,7 @@ export default function ArtistVideos() {
       {/* Videos Grid */}
       {filtered.length === 0 ? (
         <div className="flex items-center justify-center h-48 text-slate-600 text-sm">
-          暂无符合条件的视频
+          No videos match the current filter
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-5">
