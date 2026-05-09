@@ -94,36 +94,33 @@ export function useVideo(bvId: string | undefined): UseVideoReturn {
         return;
       }
 
-      // 1. 先获取现有数据
+      // 1. 先获取现有数据并立即显示
       try {
         setLoading(true);
         setError(null);
         const data = await api.getVideoWithAnalysis(bvId);
         setVideo(data);
+        setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch video'));
         setLoading(false);
         return;
-      } finally {
-        setLoading(false);
       }
 
-      // 2. 自动触发 AI 分析（同步执行）
+      // 2. 自动触发 AI 分析（使用模板摘要，LLM 已禁用）
       try {
         setAnalyzing(true);
-        console.log('[useVideo] Triggering AI analysis for:', bvId);
+        console.log('[useVideo] Triggering analysis for:', bvId);
 
-        // 调用分析 API，直接返回分析结果
+        // 调用分析 API，返回模板摘要
         const analysis = await api.analyzeVideo(bvId);
-        console.log('[useVideo] AI analysis completed');
-        console.log('[useVideo] Received analysis:', {
+        console.log('[useVideo] Analysis completed (template summary):', {
           overview: analysis.aiSummary?.overview?.substring(0, 50),
-          isLLM: (analysis as any)._is_llm_result,
           keyPointsCount: analysis.aiSummary?.keyPoints?.length,
           hotspotsCount: analysis.hotspots?.length,
         });
 
-        // 更新 video 数据，合并分析结果
+        // 更新 video 数据
         setVideo(prev => {
           if (!prev) return null;
           return {
@@ -132,7 +129,7 @@ export function useVideo(bvId: string | undefined): UseVideoReturn {
           };
         });
       } catch (err) {
-        console.error('[useVideo] Auto analysis failed:', err);
+        console.error('[useVideo] Analysis failed:', err);
       } finally {
         setAnalyzing(false);
       }

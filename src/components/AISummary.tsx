@@ -1,4 +1,4 @@
-import { Sparkles, AlertTriangle, Lightbulb, Hash, Loader2 } from 'lucide-react';
+import { AlertTriangle, Lightbulb, Hash, Loader2, Zap } from 'lucide-react';
 import type { VideoAnalysis } from '../types';
 
 interface Props {
@@ -17,20 +17,35 @@ export default function AISummary({ analysis, analyzing = false }: Props) {
       <div className="flex flex-col items-center justify-center py-12">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
         <p className="text-sm text-slate-400">
-          {analyzing ? 'AI is generating analysis...' : 'Waiting for AI analysis...'}
+          {analyzing ? 'Generating analysis...' : 'Waiting for analysis...'}
         </p>
-        <p className="text-xs text-slate-600 mt-1">Using local Qwen 3.5 model</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      {/* Summary Type Label */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Zap size={13} className="text-amber-400" />
+          <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wide">Analysis Summary</span>
+        </div>
+        {analyzing && (
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <Loader2 size={10} className="animate-spin" />
+            <span>Generating analysis...</span>
+          </div>
+        )}
+      </div>
+
       {/* Overview */}
-      <div className="p-4 rounded-xl border border-blue-500/15 bg-blue-500/5">
+      <div className="p-4 rounded-xl border border-amber-500/15 bg-amber-500/5">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles size={13} className="text-blue-400" />
-          <span className="text-[11px] font-semibold text-blue-400 uppercase tracking-wide">AI Overview</span>
+          <Zap size={13} className="text-amber-400" />
+          <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wide">
+            Overview
+          </span>
         </div>
         <p className="text-sm text-slate-300 leading-relaxed">{aiSummary.overview}</p>
       </div>

@@ -8,6 +8,7 @@
  */
 
 import { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { X, ScanLine, Cookie, LogOut, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useBilibiliAuth } from '../hooks/useBilibiliAuth';
 
@@ -171,9 +172,12 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
                     {/* QR Code */}
                     <div className="relative mb-4 rounded-lg bg-white p-3">
                       {qrCodeUrl ? (
-                        <div className="flex h-48 w-48 items-center justify-center text-slate-800">
-                          <p className="text-center text-xs">QR code content:<br/>{qrCodeUrl.slice(0, 50)}...</p>
-                        </div>
+                        <QRCodeSVG
+                          value={qrCodeUrl}
+                          size={192}
+                          level="M"
+                          includeMargin={false}
+                        />
                       ) : (
                         <div className="flex h-48 w-48 items-center justify-center">
                           <Loader2 size={32} className="animate-spin text-slate-400" />
