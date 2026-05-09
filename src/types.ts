@@ -40,10 +40,11 @@ export interface Video {
   artistName: string;
   sentimentScore: number;
   riskLevel: 'low' | 'medium' | 'high';
-  analysis: VideoAnalysis;
+  analysis?: VideoAnalysis;
 }
 
 export interface VideoAnalysis {
+  /** 情感分布，各字段为百分比（合计约 100） */
   sentiment: {
     praise: number;
     discussion: number;
@@ -51,13 +52,7 @@ export interface VideoAnalysis {
     attack: number;
     sarcasm: number;
   };
-  timeline: Array<{ second: number; density: number }>;
-  hotspots: Array<{
-    startSecond: number;
-    endSecond: number;
-    label: string;
-    peakDensity: number;
-  }>;
+  /** 意图分布，各字段为百分比（合计约 100） */
   intent: {
     waterComment: number;
     suggestion: number;
@@ -65,6 +60,15 @@ export interface VideoAnalysis {
     urgeUpdate: number;
     sponsored: number;
   };
+  /** 参与分类的有效评论总条数（用于从百分比还原实际计数） */
+  commentCount: number;
+  timeline: Array<{ second: number; density: number }>;
+  hotspots: Array<{
+    startSecond: number;
+    endSecond: number;
+    label: string;
+    peakDensity: number;
+  }>;
   aiSummary: {
     overview: string;
     keyPoints: string[];

@@ -197,11 +197,12 @@ export async function analyzeVideo(bvId: string): Promise<VideoAnalysis> {
     sentiment: response.sentiment || {
       praise: 0, discussion: 0, adDislike: 0, attack: 0, sarcasm: 0
     },
-    timeline: response.timeline || [],
-    hotspots: response.hotspots || [],
     intent: response.intent || {
       waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0
     },
+    commentCount: response.commentCount ?? 0,
+    timeline: response.timeline || [],
+    hotspots: response.hotspots || [],
     aiSummary: response.aiSummary || {
       overview: '',
       keyPoints: [],
@@ -223,11 +224,12 @@ export async function getVideoAnalysis(bvId: string): Promise<VideoAnalysis> {
     sentiment: response.sentiment || {
       praise: 0, discussion: 0, adDislike: 0, attack: 0, sarcasm: 0
     },
-    timeline: response.timeline || [],
-    hotspots: response.hotspots || [],
     intent: response.intent || {
       waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0
     },
+    commentCount: response.commentCount ?? 0,
+    timeline: response.timeline || [],
+    hotspots: response.hotspots || [],
     aiSummary: response.aiSummary || {
       overview: '',
       keyPoints: [],

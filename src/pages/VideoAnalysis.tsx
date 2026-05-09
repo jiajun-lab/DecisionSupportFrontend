@@ -82,9 +82,10 @@ export default function VideoAnalysis() {
 
   const emptyAnalysis = {
     sentiment: { praise: 0, discussion: 0, adDislike: 0, attack: 0, sarcasm: 0 },
+    intent: { waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0 },
+    commentCount: 0,
     timeline: [],
     hotspots: [],
-    intent: { waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0 },
     aiSummary: {
       overview: 'No analysis data available',
       keyPoints: ['Click the Analyze button to generate a report'],

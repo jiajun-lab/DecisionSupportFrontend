@@ -48,7 +48,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   // 用于轮询的ref
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const qrcodeKeyRef = useRef<string>('');
 
   /**
