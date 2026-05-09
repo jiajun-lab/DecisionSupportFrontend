@@ -1,12 +1,28 @@
-import { Sparkles, AlertTriangle, Lightbulb, Hash } from 'lucide-react';
+import { Sparkles, AlertTriangle, Lightbulb, Hash, Loader2 } from 'lucide-react';
 import type { VideoAnalysis } from '../types';
 
 interface Props {
   analysis: VideoAnalysis;
+  analyzing?: boolean;
 }
 
-export default function AISummary({ analysis }: Props) {
+export default function AISummary({ analysis, analyzing = false }: Props) {
   const { aiSummary } = analysis;
+
+  // 如果没有 AI 分析结果，显示分析中状态
+  const hasOverview = aiSummary.overview && aiSummary.overview.trim().length > 10;
+
+  if (!hasOverview) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+        <p className="text-sm text-slate-400">
+          {analyzing ? 'AI is generating analysis...' : 'Waiting for AI analysis...'}
+        </p>
+        <p className="text-xs text-slate-600 mt-1">Using local Qwen 3.5 model</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

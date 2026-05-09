@@ -52,18 +52,22 @@ export function useVideos(params?: {
 interface UseVideoReturn {
   video: Video | null;
   loading: boolean;
+  analyzing: boolean;
   error: Error | null;
   refresh: () => void;
 }
 
 /**
  * 获取单个视频详情
+ * 每次进入页面都会自动触发实时分析
  */
 export function useVideo(bvId: string | undefined): UseVideoReturn {
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
+  // 用于手动刷新，不触发分析
   const fetchVideo = useCallback(async () => {
     if (!bvId) {
       setLoading(false);
@@ -83,12 +87,65 @@ export function useVideo(bvId: string | undefined): UseVideoReturn {
   }, [bvId]);
 
   useEffect(() => {
-    fetchVideo();
-  }, [fetchVideo]);
+    // 获取数据并自动触发实时分析
+    const init = async () => {
+      if (!bvId) {
+        setLoading(false);
+        return;
+      }
+
+      // 1. 先获取现有数据
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await api.getVideoWithAnalysis(bvId);
+        setVideo(data);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch video'));
+        setLoading(false);
+        return;
+      } finally {
+        setLoading(false);
+      }
+
+      // 2. 自动触发 AI 分析（同步执行）
+      try {
+        setAnalyzing(true);
+        console.log('[useVideo] Triggering AI analysis for:', bvId);
+
+        // 调用分析 API，直接返回分析结果
+        const analysis = await api.analyzeVideo(bvId);
+        console.log('[useVideo] AI analysis completed');
+        console.log('[useVideo] Received analysis:', {
+          overview: analysis.aiSummary?.overview?.substring(0, 50),
+          isLLM: (analysis as any)._is_llm_result,
+          keyPointsCount: analysis.aiSummary?.keyPoints?.length,
+          hotspotsCount: analysis.hotspots?.length,
+        });
+
+        // 更新 video 数据，合并分析结果
+        setVideo(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            analysis,
+          };
+        });
+      } catch (err) {
+        console.error('[useVideo] Auto analysis failed:', err);
+      } finally {
+        setAnalyzing(false);
+      }
+    };
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bvId]); // 只在 bvId 变化时触发
 
   return {
     video,
     loading,
+    analyzing,
     error,
     refresh: fetchVideo,
   };

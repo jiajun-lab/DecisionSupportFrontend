@@ -33,7 +33,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 export default function VideoAnalysis() {
   const { bvId } = useParams<{ bvId: string }>();
   const navigate = useNavigate();
-  const { video, loading, error } = useVideo(bvId);
+  const { video, loading, analyzing, error } = useVideo(bvId);
 
   if (loading) {
     return (
@@ -43,6 +43,7 @@ export default function VideoAnalysis() {
       </div>
     );
   }
+
 
   if (error) {
     return (
@@ -95,6 +96,17 @@ export default function VideoAnalysis() {
 
   return (
     <div className="p-8 animate-fade-in">
+      {/* Analyzing indicator */}
+      {analyzing && (
+        <div className="mb-4 flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+          <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+          <div className="flex-1">
+            <span className="text-sm text-blue-400 font-medium">AI is generating fresh analysis...</span>
+            <span className="text-xs text-slate-500 ml-2">Using local Qwen 3.5 model</span>
+          </div>
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm mb-6">
         <button onClick={() => navigate('/')}
@@ -212,7 +224,7 @@ export default function VideoAnalysis() {
 
       {/* AI Summary - full width */}
       <Panel title="AI Analysis Report">
-        <AISummary analysis={video.analysis || emptyAnalysis} />
+        <AISummary analysis={video.analysis || emptyAnalysis} analyzing={analyzing} />
       </Panel>
 
       {/* Back button */}

@@ -80,12 +80,16 @@ export function BilibiliLoginModal({ isOpen, onClose }: BilibiliLoginModalProps)
 
         {/* Title */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20">
-            <span className="text-lg font-bold text-pink-400">B</span>
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isLoggedIn ? 'bg-emerald-500/20' : 'bg-pink-500/20'}`}>
+            <span className={`text-lg font-bold ${isLoggedIn ? 'text-emerald-400' : 'text-pink-400'}`}>B</span>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Bilibili Admin Login</h2>
-            <p className="text-sm text-slate-400">Log in for accurate fan counts and engagement data</p>
+            <h2 className="text-lg font-semibold text-white">
+              {isLoggedIn ? 'Bilibili Account Connected' : 'Bilibili Admin Login'}
+            </h2>
+            <p className="text-sm text-slate-400">
+              {isLoggedIn ? 'Your account is successfully connected' : 'Log in for accurate fan counts and engagement data'}
+            </p>
           </div>
         </div>
 

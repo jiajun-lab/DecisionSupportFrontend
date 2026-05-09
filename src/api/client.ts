@@ -185,12 +185,31 @@ export async function crawlVideo(
 // ========== 分析相关 API ==========
 
 /**
- * 触发 NLP 分析
+ * 触发 NLP 分析并返回结果
  */
-export async function analyzeVideo(bvId: string): Promise<{ message: string; status: string }> {
-  return fetchApi(`/analyze/${bvId}`, {
+export async function analyzeVideo(bvId: string): Promise<VideoAnalysis> {
+  const response = await fetchApi<any>(`/analyze/${bvId}`, {
     method: 'POST',
   });
+
+  // 转换后端字段到前端格式
+  return {
+    sentiment: response.sentiment || {
+      praise: 0, discussion: 0, adDislike: 0, attack: 0, sarcasm: 0
+    },
+    timeline: response.timeline || [],
+    hotspots: response.hotspots || [],
+    intent: response.intent || {
+      waterComment: 0, suggestion: 0, rant: 0, urgeUpdate: 0, sponsored: 0
+    },
+    aiSummary: response.aiSummary || {
+      overview: '',
+      keyPoints: [],
+      riskAlerts: [],
+      recommendations: [],
+      hotMemes: []
+    },
+  };
 }
 
 /**

@@ -123,8 +123,9 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
               setQrMessage('Login successful');
               setQrCodeUrl(null);
 
-              // 刷新登录状态
+              // 刷新登录状态并刷新页面
               await refreshStatus();
+              window.location.reload();
               break;
             case 'expired':
               if (pollingRef.current) {
@@ -189,6 +190,7 @@ export function useBilibiliAuth(): UseBilibiliAuthReturn {
 
       if (result.success) {
         await refreshStatus();
+        window.location.reload();
         return true;
       } else {
         alert(result.message);
