@@ -36,6 +36,7 @@ const videos: Video[] = [
         { startSecond: 980, endSecond: 1060, label: '与村民共餐', peakDensity: 112 },
       ],
       intent: { waterComment: 8, suggestion: 22, rant: 5, urgeUpdate: 45, sponsored: 20 },
+      commentCount: 0,
       aiSummary: {
         overview: '本期视频整体口碑极佳，观众情绪以正向共鸣为主。云南秘境系列内容引发了强烈的向往情绪，"好想去" "太美了" 等评论占据高频词。',
         keyPoints: [
@@ -74,6 +75,7 @@ const videos: Video[] = [
         { startSecond: 1150, endSecond: 1260, label: '最终成品展示', peakDensity: 148 },
       ],
       intent: { waterComment: 10, suggestion: 18, rant: 6, urgeUpdate: 50, sponsored: 16 },
+      commentCount: 0,
       aiSummary: {
         overview: '食材采集与烹饪过程引发大量弹幕互动，原始生活方式契合当前观众"反城市焦虑"情绪出口。',
         keyPoints: [
@@ -106,6 +108,7 @@ const videos: Video[] = [
         { startSecond: 370, endSecond: 440, label: '产品价格公示', peakDensity: 72 },
       ],
       intent: { waterComment: 20, suggestion: 5, rant: 50, urgeUpdate: 5, sponsored: 20 },
+      commentCount: 0,
       aiSummary: {
         overview: '⚠️ 本期广告视频引发较强负面情绪。"怎么又恰饭" 类评论占比高达 38%，舆情风险较高。',
         keyPoints: [
@@ -144,6 +147,7 @@ const videos: Video[] = [
         { startSecond: 1320, endSecond: 1440, label: '夕阳下的庭院时光', peakDensity: 190 },
       ],
       intent: { waterComment: 5, suggestion: 15, rant: 3, urgeUpdate: 65, sponsored: 12 },
+      commentCount: 0,
       aiSummary: {
         overview: '本期为全年最佳表现视频。院落生活叙事触碰到都市疲倦族群最深的共鸣，完播率预计超过 65%。',
         keyPoints: [
@@ -182,6 +186,7 @@ const videos: Video[] = [
         { startSecond: 1640, endSecond: 1780, label: '最终选购建议', peakDensity: 200 },
       ],
       intent: { waterComment: 5, suggestion: 30, rant: 8, urgeUpdate: 35, sponsored: 22 },
+      commentCount: 0,
       aiSummary: {
         overview: '专业评测内容获得创作者社区高度认可，信息密度与可信度双高，成为圈内引用标杆。',
         keyPoints: [
@@ -218,6 +223,7 @@ const videos: Video[] = [
         { startSecond: 1000, endSecond: 1100, label: '调色技巧展示', peakDensity: 175 },
       ],
       intent: { waterComment: 6, suggestion: 28, rant: 5, urgeUpdate: 40, sponsored: 21 },
+      commentCount: 0,
       aiSummary: {
         overview: '科普向内容在影像爱好者群体中引发强烈共鸣，技术揭秘叙事节奏把控极佳。',
         keyPoints: [
@@ -252,6 +258,7 @@ const videos: Video[] = [
         { startSecond: 1510, endSecond: 1660, label: '创作者思考分享', peakDensity: 228 },
       ],
       intent: { waterComment: 4, suggestion: 20, rant: 4, urgeUpdate: 52, sponsored: 20 },
+      commentCount: 0,
       aiSummary: {
         overview: '创作者深度自省视频引发行业级别讨论，成为 B 站内容创作圈年度必看视频之一。',
         keyPoints: [
@@ -290,6 +297,7 @@ const videos: Video[] = [
         { startSecond: 640, endSecond: 720, label: '结尾金句', peakDensity: 365 },
       ],
       intent: { waterComment: 10, suggestion: 12, rant: 8, urgeUpdate: 55, sponsored: 15 },
+      commentCount: 0,
       aiSummary: {
         overview: '荒诞叙事风格精准拿捏当代年轻人情绪，本期反转设计尤为出色，引发大规模自发传播。',
         keyPoints: [
@@ -325,6 +333,7 @@ const videos: Video[] = [
         { startSecond: 550, endSecond: 630, label: '荒诞结论', peakDensity: 330 },
       ],
       intent: { waterComment: 12, suggestion: 10, rant: 9, urgeUpdate: 58, sponsored: 11 },
+      commentCount: 0,
       aiSummary: {
         overview: '本期延续荒诞富豪人设，对"无聊经济学"的解构让观众在发笑的同时产生深度共鸣。',
         keyPoints: [
@@ -361,6 +370,7 @@ const videos: Video[] = [
         { startSecond: 830, endSecond: 940, label: '最终收场', peakDensity: 445 },
       ],
       intent: { waterComment: 15, suggestion: 15, rant: 20, urgeUpdate: 40, sponsored: 10 },
+      commentCount: 0,
       aiSummary: {
         overview: '本期引发强烈的劳动议题讨论，超预期破圈。"现场冲突爆发"片段弹幕密度创账号历史新高。',
         keyPoints: [
@@ -401,6 +411,7 @@ const videos: Video[] = [
         { startSecond: 1190, endSecond: 1320, label: '最终定论', peakDensity: 238 },
       ],
       intent: { waterComment: 8, suggestion: 25, rant: 15, urgeUpdate: 38, sponsored: 14 },
+      commentCount: 0,
       aiSummary: {
         overview: '游戏长期用户视角引发深度共鸣，兼顾批评与肯定的态度获得高可信度评价。',
         keyPoints: [
@@ -436,6 +447,7 @@ const videos: Video[] = [
         { startSecond: 1830, endSecond: 2000, label: '最终游戏排行揭晓', peakDensity: 210 },
       ],
       intent: { waterComment: 7, suggestion: 30, rant: 10, urgeUpdate: 42, sponsored: 11 },
+      commentCount: 0,
       aiSummary: {
         overview: '游戏盘点类内容完播率高，"隐藏佳作推荐"片段带动多款冷门游戏在站内搜索量暴增。',
         keyPoints: [

@@ -51,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   // 用于轮询的ref
-  const pollingRef = React.useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const qrcodeKeyRef = React.useRef<string>('');
 
   /**
